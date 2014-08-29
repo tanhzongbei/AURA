@@ -9,9 +9,9 @@ import traceback
 
 from flask import request
 
-from userpartition.base import application, jsonify, logger
+from aura.base import application, jsonify, logger
 
 
-@application.route('/userpartition/querypartitionurl')
+@application.route('/aura/regist')
 def querypartitionurl():
     return jsonify()

@@ -5,8 +5,8 @@ Author: ilcwd
 """
 from base import application
 
-from userpartition.apis import (
-    apipartition,
+from aura.apis import (
+    apiaura,
 )
 
 __all__ = [

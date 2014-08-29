@@ -5,7 +5,7 @@ Created on Jun 18, 2014
 @author: ilcwd
 """
 
-from userpartition import application
+from aura import application
 
 
 import logging.config
