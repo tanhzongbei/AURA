@@ -13,5 +13,5 @@ from aura.base import application, jsonify, logger
 
 
 @application.route('/aura/regist')
-def querypartitionurl():
-    return jsonify()
+def regist():
+    return jsonify('Not implemented')
