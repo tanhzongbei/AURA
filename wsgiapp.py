@@ -1,9 +1,12 @@
-#coding:utf8
+
 """
 Created on Jun 18, 2014
 
 @author: ilcwd
 """
+
+import sys
+sys.path.append('/data/apps/aura')
 
 from aura import application
 

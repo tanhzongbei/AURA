@@ -32,7 +32,6 @@ PROCESS_GROUP="$SERVICE_NAME"
 APP_PATH="/data/apps/${SERVICE_NAME}"
 LOG_PATH="/data/logs/${SERVICE_NAME}"
 RUN_PATH="/data/apps/run"
-VIRTUAL_ENV_PATH="/data/envs/${SERVICE_NAME}"
 
 # 防止手贱没改服务名的人。
 if [ "${SERVICE_NAME}" = "examplesvr" ]; then
@@ -61,11 +60,6 @@ if [ ! -s ${UWSGI_EXEC} ]; then
     exit 1
 fi
 
-if [ ! -d ${VIRTUAL_ENV_PATH} ]; then
-    echo "Virtualenv path does not exist: ${VIRTUAL_ENV_PATH}"
-    echo "You can run command 'mkvirtualenv --python=/usr/local/python-2.7.8/bin/python ${SERVICE_NAME}' to create new env."
-    exit 1
-fi
 
 if [ ! -d ${LOG_PATH} ]; then
     mkdir ${LOG_PATH}
@@ -103,7 +97,7 @@ chown -R ${PROCESS_USER}.${PROCESS_GROUP} ${LOG_PATH}
 UWSGI_SOCKET="${RUN_PATH}/uwsgi_${SERVICE_NAME}.sock"
 UWSGI_WORKER_MAXREQ="100000"
 
-PYTHON_PATH="${APP_PATH}/current"
+PYTHON_PATH="${APP_PATH}"
 PY_ENTRY="${PYTHON_PATH}/wsgiapp.py"
 
 UWSGI_PIDFILE="${RUN_PATH}/uwsgi_${SERVICE_NAME}.pid"
@@ -157,7 +151,6 @@ function start_uwsgi()
     
     ${UWSGI_EXEC} \
         --socket ${UWSGI_SOCKET} \
-        -H $VIRTUAL_ENV_PATH \
         --master \
         --workers ${UWSGI_WORKERS} \
         --max-requests ${UWSGI_WORKER_MAXREQ} \
