@@ -14,9 +14,6 @@ from kputils import (
 
 #------------------------------------------------------------------------------ 
 
-db_account = mysql.BaseDB(_conf.MYSQL_OPENAPI)
-db_opensession = mysql.BaseDB(_conf.MYSQL_OPENSESSION)
-
+db_account = mysql.BaseDB(_conf.MYSQL_ACCOUNT)
 mc_default = cache.MCCache(_conf.MC_DEFAULT)
-
-cache_auth = cache.CacheContext(mc_default, prefix='AUTH@OPENAUTH@', expires=_conf.MC_EXPIRES)
+cache_account = cache.CacheContext(mc_default, prefix='ACCOUNT@AURA@', expires=_conf.MC_EXPIRES)
