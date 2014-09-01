@@ -5,24 +5,15 @@ Author: ilcwd
 """
 
 
-MYSQL_OPENAPI = dict(
-    host="10.0.3.184",
-    db="openapi",
-    user="kuaipan",
-    passwd="r5G6KPtqcTjh1YBv",
+MYSQL_ACCOUNT = dict(
+    host="182.92.166.245",
+    db="account",
+    user="python",
+    passwd="gj4fKLCcnRJQz5U1",
     port=3306,
     charset="utf8"
 )
 
-MYSQL_OPENSESSION = dict(
-    host="10.0.3.184",
-    db="opensession",
-    user="kuaipan",
-    passwd="r5G6KPtqcTjh1YBv",
-    port=3306,
-    charset="utf8"
-)
-
-MC_DEFAULT = ['10.0.3.184:11211', '10.0.3.184:11211']
+MC_DEFAULT = ['182.92.166.245:11211']
 
 MC_EXPIRES = 3600 * 12

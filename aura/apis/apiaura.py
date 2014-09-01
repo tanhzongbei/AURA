@@ -14,4 +14,5 @@ from aura.base import application, jsonify, logger
 
 @application.route('/aura/regist')
 def regist():
+    args = request.args
     return jsonify('Not implemented')
