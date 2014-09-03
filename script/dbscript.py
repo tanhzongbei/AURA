@@ -29,9 +29,10 @@ CREATE TABLE `account` (
   `email` varchar(64) default NULL,
   `mobile` bigint(20) default NULL,
   `extid` bigint(20) default NULL,
+  `ctime` datetime NOT NULL,
   PRIMARY KEY  (`userid`),
-  UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `mobile` (`mobile`)
+  KEY `email` (`email`),
+  KEY `mobile` (`mobile`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 '''
 
