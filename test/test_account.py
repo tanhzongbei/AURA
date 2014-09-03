@@ -23,6 +23,7 @@ class Test(unittest.TestCase):
     
     def api(self, func, data):
         url = conf.AURA_URL + func
+        print url,data
         res = urllib2.urlopen(url, data, 3).read()
         return ujson.loads(res)
 
@@ -40,6 +41,7 @@ class Test(unittest.TestCase):
         
         data = {'username' : username, 'password':'123456', 'type' : 'email'}
         data = ujson.dumps(data)
+        
         res = self.api('login', data)
     
 if __name__ == '__main__':
