@@ -18,10 +18,7 @@ import ujson
 
 @application.route('/aura/emailRegist', methods=['POST'])
 def emailRegist():
-    args = list()
-    for k in request.form:
-        args.append(k)
-    args = ujson.loads(args[0])
+    args = request.json
     email = args.get('email', None)
     password = args.get('password', None)
     if not email or not password:
@@ -33,10 +30,7 @@ def emailRegist():
 
 @application.route('/aura/mobileRegist', methods=['POST'])
 def mobileRegist():
-    args = list()
-    for k in request.form:
-        args.append(k)
-    args = ujson.loads(args[0])
+    args = request.json
     mobile = args.get('mobile', None)
     password = args.get('password', None)
     if not mobile or not password:
@@ -48,10 +42,7 @@ def mobileRegist():
 
 @application.route('/aura/login', methods=['POST'])
 def login():
-    args = list()
-    for k in request.form:
-        args.append(k)
-    args = ujson.loads(args[0])
+    args = request.json
     username = args.get('username', None)
     password = args.get('password', None)
     type = args.get('type', None)
