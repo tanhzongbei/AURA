@@ -4,8 +4,6 @@
 Author: ilcwd
 """
 
-import urlparse
-import traceback
 
 from flask import request
 from aura.base import application, jsonify, logger
@@ -21,10 +19,11 @@ def emailRegist():
     args = request.json
     email = args.get('email', None)
     password = args.get('password', None)
-    if not email or not password:
+    nickname = args.get('nickname', None)
+    if not email or not password or not nickname:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
     
-    res = accountDAO.register(email, None, password)    
+    res = accountDAO.register(email, None, nickname, password)    
     return jsonify({'result_code' : res})
 
 
@@ -33,11 +32,21 @@ def mobileRegist():
     args = request.json
     mobile = args.get('mobile', None)
     password = args.get('password', None)
-    if not mobile or not password:
+    nickname = args.get('nickname', None)    
+    if not mobile or not password or not nickname:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
-    res = accountDAO.register(None, mobile, password)        
+    res = accountDAO.register(None, mobile, nickname, password)        
     return jsonify({'result_code' : res})
 
+
+@application.route('/aura/checkNickName', methods=['POST'])
+def checkNickName():
+    args = request.json
+    nickname = args.get('nickname', None)    
+    if not nickname:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+    res = accountDAO.checkNickName(nickname)
+    return jsonify({'result_code':_code.CODE_OK, 'exist' : res})
 
 
 @application.route('/aura/login', methods=['POST'])

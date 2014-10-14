@@ -38,9 +38,10 @@ def encryptPassword(password):
 ACCOUNT_TABLE = 'account'    
 SESSION_TABLE = 'session'
 #------------------------------------------------------------------------------ 
-def register(email, mobile, password):
+def register(email, mobile, nickname, password):
     email = mysql.escape(email)
     mobile = mysql.escape(mobile)
+    nickname = mysql.escape(nickname)
     if email:
         SQL = '''SELECT * FROM `%s` WHERE `email` = '%s' limit 1
         ''' % (ACCOUNT_TABLE, email)
@@ -52,13 +53,23 @@ def register(email, mobile, password):
         ''' % (ACCOUNT_TABLE, mobile)
         res = db_account.query(SQL, mysql.QUERY_DICT)
         if res:
-            return _code.CODE_ACCOUNT_EXIST        
+            return _code.CODE_ACCOUNT_EXIST    
+
+    if checkNickName(nickname):
+        return _code.CODE_ACCOUNT_NICKNAME_EXIST        
     
     password = mysql.escape(encryptPassword(password))
-    SQL = '''INSERT INTO `%s` (`email`, `mobile`, `passwd`, `ctime`) VALUES ('%s', '%s', '%s', now())
-    ''' % (ACCOUNT_TABLE, email, mobile, password)
+    SQL = '''INSERT INTO `%s` (`email`, `mobile`, `passwd`, `nickname`, `ctime`) VALUES ('%s', '%s', '%s', '%s', now())
+    ''' % (ACCOUNT_TABLE, email, mobile, password, nickname)
     res = db_account.execute(SQL)
     return _code.CODE_OK
+
+
+def checkNickName(nickname):
+    SQL = '''SELECT * FROM `%s` WHERE `nickname` = '%s'
+    ''' % (ACCOUNT_TABLE, mysql.escape(nickname))
+    res = db_account.query_one(SQL, mysql.QUERY_DICT)
+    return True if res else False
 
 
 def checkAccountWithEmail(email, password):

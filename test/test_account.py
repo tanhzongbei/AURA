@@ -25,13 +25,14 @@ class Test(unittest.TestCase):
     def api(self, func, data):
         url = conf.AURA_URL + func        
         header = {'Content-Type': 'application/json'}
-        code, res = curl.openurl(url, data, header, 3)
+        code, res = curl.openurl(url, data, header, 10)
         return ujson.loads(res)
 
     
     def test(self):
         username = 'test%d@ks.com' % int(time.time())
-        data = {'email':username, 'password':'123456'}
+        nickname = 'test%d' % int(time.time())
+        data = {'email':username, 'password':'123456', 'nickname' : nickname}
         data = ujson.dumps(data)
         
         res = self.api('emailRegist', data)
@@ -39,6 +40,11 @@ class Test(unittest.TestCase):
         
         res = self.api('emailRegist', data)
         assert res['result_code'] == 11004
+        
+        data = {'email' : 'test111%d@ks.com' % int(time.time()), 'password' : '123456', 'nickname' : nickname}
+        data = ujson.dumps(data)
+        res = self.api('emailRegist', data)
+        assert res['result_code'] == 11005
         
         data = {'username' : username, 'password':'123456', 'type' : 'email'}
         data = ujson.dumps(data)

@@ -26,13 +26,15 @@ CREATE_ACCOUNT = '''
 CREATE TABLE `account` (
   `userid` bigint(20) unsigned NOT NULL auto_increment,
   `passwd` varchar(128) default NULL,
+  `nickname` varchar(32),
   `email` varchar(64) default NULL,
   `mobile` bigint(20) default NULL,
   `extid` bigint(20) default NULL,
   `ctime` datetime NOT NULL,
   PRIMARY KEY  (`userid`),
   KEY `email` (`email`),
-  KEY `mobile` (`mobile`)
+  KEY `mobile` (`mobile`),
+  UNIQUE KEY `nickname` (`nickname`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 '''
 
