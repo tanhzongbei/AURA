@@ -16,4 +16,3 @@ from kputils import (
 
 db_account = mysql.BaseDB(_conf.MYSQL_ACCOUNT)
 mc_default = cache.MCCache(_conf.MC_DEFAULT)
-cache_account = cache.CacheContext(mc_default, prefix='ACCOUNT@AURA@', expires=_conf.MC_EXPIRES)

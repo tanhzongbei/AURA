@@ -24,7 +24,8 @@ class Test(unittest.TestCase):
     
     def api(self, func, data):
         url = conf.AURA_URL + func        
-        header = {'Content-Type': 'application/json'}
+        deviceId = 'fake_device_xiaobei'
+        header = {'Content-Type': 'application/json', 'deviceId' : deviceId}
         code, res = curl.openurl(url, data, header, 10)
         return ujson.loads(res)
 
@@ -58,6 +59,44 @@ class Test(unittest.TestCase):
         res = self.api('login', data)
         assert res['result_code'] == 11002
         
+    def testSession(self):
+        username = 'testsession%d@ks.com' % int(time.time())
+        nickname = 'testsession%d' % int(time.time())
+        data = {'email':username, 'password':'123456', 'nickname' : nickname}
+        data = ujson.dumps(data)
+        
+        res = self.api('emailRegist', data)
+        assert res['result_code'] == 10000, res
+        
+        data = {'username' : username, 'password':'123456', 'type' : 'email'}
+        data = ujson.dumps(data)
+        
+        res = self.api('login', data)
+        assert res['result_code'] == 10000
+        token = res['token']
+        
+        data = {'token' : token}
+        data = ujson.dumps(data)
+        res = self.api('confirm', data)
+        assert res['result_code'] == 10000
+        
+        data = {'token' : token}
+        data = ujson.dumps(data)
+        res = self.api('refreshToken', data)
+        assert res['result_code'] == 10000
+        newtoken = res['token']
+
+        data = {'token' : token}
+        data = ujson.dumps(data)
+        res = self.api('confirm', data)
+        assert res['result_code'] == 12001
+        
+        
+        data = {'token' : newtoken}
+        data = ujson.dumps(data)
+        res = self.api('confirm', data)
+        assert res['result_code'] == 10000
+
     
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(Test.testSession)

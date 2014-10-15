@@ -38,12 +38,30 @@ CREATE TABLE `account` (
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 '''
 
+
+CREATE_SESSION = '''
+CREATE TABLE IF NOT EXISTS `session` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `userid` int(10) NOT NULL,
+  `sid` binary(20) NOT NULL,
+  `deviceid` varchar(64) NOT NULL,
+  `ip` varchar(15) NOT NULL,
+  `ctime` timestamp default current_timestamp,
+  `etime` timestamp NOT NULL,
+  
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uidx_sid` (`sid`),
+  KEY `idx_ctime` (`ctime`),
+  KEY `idx_etime` (`etime`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'session';
+'''
+
 def createAccount():
 #    SQL = 'CREATE DATABASE %s' % DB_NAME
 #    cursor.execute(SQL)
     SQL = 'USE %s' % DB_NAME
     cursor.execute(SQL)    
-    cursor.execute(CREATE_ACCOUNT)
+    cursor.execute(CREATE_SESSION)
 
 
 def main():

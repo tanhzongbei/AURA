@@ -7,7 +7,6 @@ Created on 2014-9-1
 
 from db import (
                 db_account,
-                cache_account
 )
 
 from kputils import (
