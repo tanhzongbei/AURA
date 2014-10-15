@@ -59,6 +59,7 @@ class Test(unittest.TestCase):
         res = self.api('login', data)
         assert res['result_code'] == 11002
         
+        
     def testSession(self):
         username = 'testsession%d@ks.com' % int(time.time())
         nickname = 'testsession%d' % int(time.time())
@@ -96,6 +97,20 @@ class Test(unittest.TestCase):
         data = ujson.dumps(data)
         res = self.api('confirm', data)
         assert res['result_code'] == 10000
+        
+    def testCheckNickName(self):
+        username = 'testsession%d1@ks.com' % int(time.time())
+        nickname = 'testsession%d1' % int(time.time())
+        data = {'email':username, 'password':'123456', 'nickname' : nickname}
+        data = ujson.dumps(data)
+        
+        res = self.api('emailRegist', data)
+        assert res['result_code'] == 10000, res
+        
+        data = {'nickname' : nickname}
+        data = ujson.dumps(data)
+        res = self.api('checkNickName', data)
+        print res
 
     
 if __name__ == '__main__':

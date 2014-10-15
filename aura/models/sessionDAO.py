@@ -65,13 +65,13 @@ def setmc(token, userid, deviceId, ip, ctime, etime):
     key = PREFIX + token
     value = {'userid' : userid, 'deviceId' : deviceId, 'ip' : ip, 'ctime' : ctime, 'etime' : etime}
     value = _json.dumps(value)
-    print mc_default.set(key, value, EXPIRED_TIME)
+    mc_default.set(key, value, EXPIRED_TIME)
 
 
 def deletemc(token):
     #kes must be str()'s
     key = PREFIX + token
-    print mc_default.delete(key.encode('utf8'))
+    mc_default.delete(key.encode('utf8'))
 
 
 def querymc(token):
