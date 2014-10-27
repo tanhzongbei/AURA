@@ -15,6 +15,7 @@ from aura.models import (
 import definecode as _code
 import ujson
 from aura.models.geo import geomisc
+from aura.models.oss import ossmisc
 
 
 @application.route('/aura/emailRegist', methods=['POST'])
@@ -189,6 +190,37 @@ def commit():
     if code != _code.CODE_OK:
         return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
     
+    # check if need upload
+    sha1 = args.get('sha1', None)
+    albumid = args.get('albumid', None)
+    latitude = args.get('latitude', None)
+    longitude = args.get('longitude', None)
+    
+    if not sha1 or not albumid or not latitude or not longitude :
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})        
+
+    res = ossmisc.headObj(sha1)
+    if res != _code.CODE_OK:
+        return jsonify({'result_code': code})
+    
+    geohash = geomisc.getGeoHash(latitude, longitude)
+    
+    code, result = geomisc.getLocation(latitude, longitude)
+    if code == _code.CODE_OK:
+        city = result['addressComponent']['city']
+    else:
+        return jsonify({'result_code' : code})
+    
+    code, res = fileDAO.queryCityId(city)
+    if code == _code.CODE_CITY_NOTEXIST:
+        code, cityid = fileDAO.insertCity(city)
+    else:
+        cityid = res['autoid']
+    
+    code, res = fileDAO.insertPhoto(albumid, geohash, cityid, userid)
+    
     return jsonify({'result_code': code})
+
+
 #------------------------------------------------------------------------------ 
 

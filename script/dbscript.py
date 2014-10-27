@@ -66,6 +66,7 @@ CREATE TABLE `photo` (
   `geohash` varbinary(10) DEFAULT NULL,
   `cityid` int(10) unsigned DEFAULT NULL,
   `userid` bigint(20) NOT NULL,
+  `sha1` varchar(40) NOT NULL,
   `optime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `prop` bigint(20) NOT NULL COMMENT 'some properties of the photo',
   PRIMARY KEY (`photoid`),

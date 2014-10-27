@@ -24,7 +24,8 @@ if __name__ == "__main__":
    
     #对特定的URL签名，默认URL过期时间为60秒
     method = "GET"
-    bucket = "test" + time.strftime("%Y-%b-%d%H-%M-%S").lower()
+    #bucket = "test" + time.strftime("%Y-%b-%d%H-%M-%S").lower()
+    bucket = 'aura'
     object = "test_object" 
     url = "http://" + HOST + "/oss/" + bucket + "/" + object
     headers = {}

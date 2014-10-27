@@ -10,6 +10,7 @@ import unittest
 import testconfig as conf
 import ujson
 import time
+import hashlib
 
 #------------------------------------------------------------------------------ 
 
@@ -53,8 +54,28 @@ class Test(unittest.TestCase):
         data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000}
         data = ujson.dumps(data)
         
-        res = self.api('recommendAlbum', data)
+#        res = self.api('recommendAlbum', data)
+#        assert res['result_code'] == 10000
+
+
+    def testUploadPhoto(self):
+        name = 'test%d' % int(time.time())
+        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'name' : name}
+        data = ujson.dumps(data)
+        
+        res = self.api('createAlbum', data)
         assert res['result_code'] == 10000
+        albumid = res['albumid']
+        
+        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000}
+        data = ujson.dumps(data)
+        
+        filename = './1.jpg'
+        content = open(file).read()
+        
+        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000}
+        
+                
         
         
 
