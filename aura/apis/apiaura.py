@@ -17,7 +17,6 @@ import ujson
 from aura.models.geo import geomisc
 from aura.models.oss import ossmisc
 
-
 @application.route('/aura/emailRegist', methods=['POST'])
 def emailRegist():
     args = request.json
@@ -201,7 +200,7 @@ def commit():
 
     res = ossmisc.headObj(sha1)
     if res != _code.CODE_OK:
-        return jsonify({'result_code': code})
+        return jsonify({'result_code': res})
     
     geohash = geomisc.getGeoHash(latitude, longitude)
     
@@ -217,10 +216,11 @@ def commit():
     else:
         cityid = res['autoid']
     
-    code, res = fileDAO.insertPhoto(albumid, geohash, cityid, userid)
-    
-    return jsonify({'result_code': code})
+    code, res = fileDAO.insertPhoto(albumid, geohash, cityid, userid, sha1)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code': code, 'photoid' : res})
+    else:
+        return jsonify({'result_code' : code})
 
 
 #------------------------------------------------------------------------------ 
-

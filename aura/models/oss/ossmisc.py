@@ -22,7 +22,7 @@ def headObj(sha1):
     res = oss.head_object(_cnf.OSS_BUCKET_NAME, sha1)
     if (res.status / 100) == 2:
         return _code.CODE_OK
-    else if res.status == 404:
+    elif res.status == 404:
         return _code.CODE_FILE_NOTEXIST
     else:
         return _code.CODE_OSS_RPC_ERROR
@@ -44,10 +44,11 @@ def uploadFile(sha1, input_content):
     
     if (res.status / 100) == 2:
         print "put_object_from_string OK"
+        return _code.CODE_OK
     else:
         print "put_object_from_string ERROR"
+        return _code.CODE_OSS_RPC_ERROR
 
-    return res
 
 
 def downloadFile(sha1):

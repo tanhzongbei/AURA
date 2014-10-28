@@ -21,11 +21,12 @@ TABLE_CITY = 'city'
 DELAY_TIME = 2 * 3600
 #------------------------------------------------------------------------------ 
 
-def insertPhoto(albumid, geohash, cityid, userid, prop = 0):
+def insertPhoto(albumid, geohash, cityid, userid, sha1, prop = 0):
     geohash = mysql.escape(geohash)
-    SQL = '''INSERT INTO `%s` (`albumid`, `ctime`, `geohash`, `cityid`, `userid`, `prop`) VALUES 
-            (%d, now(), '%s', %d, %d, %d)
-    ''' % (TABLE_PHOTO, geohash, int(cityid), int(userid), int(prop))
+    sha1 = mysql.escape(sha1)
+    SQL = '''INSERT INTO `%s` (`albumid`, `ctime`, `geohash`, `cityid`, `userid`, `sha1`, `prop`) VALUES 
+            (%d, now(), '%s', %d, %d, '%s', %d)
+    ''' % (TABLE_PHOTO, int(albumid), geohash, int(cityid), int(userid), sha1, int(prop))
     photoid, rows = db_album.insert(SQL)
     if rows == 1:
         return _code.CODE_OK, photoid
@@ -36,7 +37,7 @@ def insertPhoto(albumid, geohash, cityid, userid, prop = 0):
 def queryPhotoInfoByLocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
-    SQL = '''SELECT `albumid`, `cityid`, `userid` FROM `%s` WHERE `geohash` LIKE '%s' AND `optime` > '%s'
+    SQL = '''SELECT `albumid`, `cityid`, `userid` ,`sha1` FROM `%s` WHERE `geohash` LIKE '%s' AND `optime` > '%s'
     ''' % (TABLE_PHOTO, geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -44,7 +45,6 @@ def queryPhotoInfoByLocate(geohash):
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
     
-   
     
 def insertAlbum(name, geohash, cityid, userid, prop = 0):
     geohash = mysql.escape(geohash)

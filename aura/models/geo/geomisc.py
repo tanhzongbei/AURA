@@ -18,13 +18,25 @@ def getGeoHash(lat, lng):
 def getLocation(lat, lng):
     url = _cnf.BAIDU_URL + 'ak=%s&' % _cnf.BAIDU_AK + 'location=%s,%s&output=json&pois=0' % (str(lat),str(lng))
     code, res = curl.openurl(url)
-    result = {}
-    res = _json.loads(res)
-    if code == 200 and res['status'] == 0:
-        result = res['result']
-        return _code.CODE_OK, result
+    if code == 200:
+        res = _json.loads(res)
+        result = {}
+        if res['status'] == 0:
+            result = res['result']
+            return _code.CODE_OK, result
+        else:
+            return _code.CODE_GEO_BAIDURPC_FAILD, None 
     else:
-        return _code.CODE_GEO_BAIDURPC_FAILD, None
+        code, res = curl.openurl(url)
+        if code == 200:
+            res = _json.loads(res)
+            result = {}
+            if res['status'] == 0:
+                result = res['result']
+                return _code.CODE_OK, result
+        return _code.CODE_GEO_BAIDURPC_FAILD, None 
+            
+        
     
 #------------------------------------------------------------------------------ 
 if __name__ == '__main__':
