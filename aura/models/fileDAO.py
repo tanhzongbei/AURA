@@ -41,7 +41,7 @@ def queryPhotoInfoByLocate(geohash):
     ''' % (TABLE_PHOTO, geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
-        return _code.CODE_OK, res[0]
+        return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
     

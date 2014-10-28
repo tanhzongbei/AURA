@@ -17,6 +17,9 @@ from aura.models.oss import ossmisc
 
 
 #------------------------------------------------------------------------------ 
+#(40.0425140000,116.3293040000) 的地址是：北京市海淀区小营西路33号金山软件大厦
+#(40.0493550000,116.3251520000) 的地址时：北京市海淀区安宁庄西路9号 当代城市家园 
+ 
 def genusername(n = 6):
     SAMPLE = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     return ''.join([random.choice(SAMPLE) for _i in xrange(n)]) 
@@ -47,18 +50,17 @@ class Test(unittest.TestCase):
         deviceId = 'fake_device_xiaobei'
         header = {'Content-Type': 'application/json', 'deviceId' : deviceId}
         code, res = curl.openurl(url, data, header, 30)
-        print res
         return ujson.loads(res)
 
     
-#    def testCreateAlbum(self):
-#        name = 'test%d' % int(time.time())
-#        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'name' : name}
-#        data = ujson.dumps(data)
-#        
-#        res = self.api('createAlbum', data)
-#        assert res['result_code'] == 10000
-#        albumid = res['albumid']
+    def testCreateAlbum(self):
+        name = 'test%d' % int(time.time())
+        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'name' : name}
+        data = ujson.dumps(data)
+        
+        res = self.api('createAlbum', data)
+        assert res['result_code'] == 10000
+        albumid = res['albumid']
 
 
     def testUploadPhoto(self):
@@ -70,7 +72,7 @@ class Test(unittest.TestCase):
         assert res['result_code'] == 10000
         albumid = res['albumid']
                 
-        filename = './1.jpg'
+        filename = './2.png'
         content = open(filename, 'r').read()
         
         sha = hashlib.sha1()
@@ -102,6 +104,13 @@ class Test(unittest.TestCase):
         res = ossmisc.downloadFile(sha1)
         assert res.read() == content
 
+
+    def testRecommendAlbum(self):
+        data = {'token' : self.token, 'latitude':40.0493550000, 'longitude':116.3251520000}
+        data = ujson.dumps(data)
+        res = self.api('recommendAlbum', data)
+        print res
+
 #------------------------------------------------------------------------------ 
 if __name__ == '__main__':
-    unittest.main(Test.testUploadPhoto)
+    unittest.main(Test.testRecommendAlbum)
