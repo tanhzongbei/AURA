@@ -11,20 +11,26 @@ import testconfig as conf
 import ujson
 import time
 import hashlib
+import random
 
 from aura.models.oss import ossmisc
 
+
 #------------------------------------------------------------------------------ 
+def genusername(n = 6):
+    SAMPLE = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    return ''.join([random.choice(SAMPLE) for _i in xrange(n)]) 
+
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.username = 'test%d@ks.com' % int(time.time())
-        self.nickname = 'test%d' % int(time.time())
+        self.username = 'test%s@ks.com' % genusername()
+        self.nickname = 'test%s' % genusername()
         data = {'email':self.username, 'password':'123456', 'nickname' : self.nickname}
         data = ujson.dumps(data)
         
         res = self.api('emailRegist', data)
-        assert res['result_code'] == 10000
+        assert res['result_code'] == 10000,res
         
         data = {'username' : self.username, 'password':'123456', 'type' : 'email'}
         data = ujson.dumps(data)
@@ -53,12 +59,6 @@ class Test(unittest.TestCase):
 #        res = self.api('createAlbum', data)
 #        assert res['result_code'] == 10000
 #        albumid = res['albumid']
-#        
-#        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000}
-#        data = ujson.dumps(data)
-        
-#        res = self.api('recommendAlbum', data)
-#        assert res['result_code'] == 10000
 
 
     def testUploadPhoto(self):
@@ -69,9 +69,7 @@ class Test(unittest.TestCase):
         res = self.api('createAlbum', data)
         assert res['result_code'] == 10000
         albumid = res['albumid']
-        
-        
-        
+                
         filename = './1.jpg'
         content = open(filename, 'r').read()
         
@@ -83,21 +81,26 @@ class Test(unittest.TestCase):
         data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'sha1' : sha1, 'albumid' : albumid}
         data = ujson.dumps(data)
         res = self.api('commit', data)
+
         if res['result_code'] == 10000:
             assert res['photoid'] is not None
-            return 
-
-        assert res['result_code'] == 14004, res 
-        #upload file
-        res = ossmisc.uploadFile(sha1, content)
-        assert res == 10000
-        
-        # true commit 
-        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'sha1' : sha1, 'albumid' : albumid}
-        data = ujson.dumps(data)
-        res = self.api('commit', data)
-        assert res['result_code'] == 10000
-        
+            photoid  = res['photoid']
+        else:
+            assert res['result_code'] == 14004, res 
+            #upload file
+            res = ossmisc.uploadFile(sha1, content)
+            assert res == 10000
+            
+            # true commit 
+            data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'sha1' : sha1, 'albumid' : albumid}
+            data = ujson.dumps(data)
+            res = self.api('commit', data)
+            assert res['result_code'] == 10000
+            photoid  = res['photoid']
+            
+        #download file
+        res = ossmisc.downloadFile(sha1)
+        assert res.read() == content
 
 #------------------------------------------------------------------------------ 
 if __name__ == '__main__':

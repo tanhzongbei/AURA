@@ -41,7 +41,6 @@ def uploadFile(sha1, input_content):
     content_type = "text/HTML"
     headers = {}
     res = oss.put_object_from_string(_cnf.OSS_BUCKET_NAME, sha1, input_content, content_type, headers)
-    
     if (res.status / 100) == 2:
         print "put_object_from_string OK"
         return _code.CODE_OK
@@ -53,6 +52,7 @@ def uploadFile(sha1, input_content):
 
 def downloadFile(sha1):
     res = oss.get_object(_cnf.OSS_BUCKET_NAME, sha1)
+
     if (res.status / 100) == 2:
         print "get_object OK"
     else:
