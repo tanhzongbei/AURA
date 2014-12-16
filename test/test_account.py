@@ -110,14 +110,14 @@ class Test(unittest.TestCase):
         data = {'nickname' : nickname}
         data = ujson.dumps(data)
         res = self.api('checkNickName', data)
-        print res
+        assert res['result_code'] == 10000 and res['exist'], res
 
 
     def testFollow(self):
         # 1关注2，2关注1，3关注1，然后互相查看关注的关系
-        username1 = 'testsession%d1@ks.com' % int(time.time())
-        username2 = 'testsession%d2@ks.com' % int(time.time())
-        username3 = 'testsession%d3@ks.com' % int(time.time())
+        username1 = 'testsession%d11@ks.com' % int(time.time())
+        username2 = 'testsession%d22@ks.com' % int(time.time())
+        username3 = 'testsession%d33@ks.com' % int(time.time())
         self.register(username1)
         self.register(username2)
         self.register(username3)
@@ -185,4 +185,4 @@ class Test(unittest.TestCase):
         return  token, userid
     
 if __name__ == '__main__':
-    unittest.main(defaultTest = 'Test.testFollow')
+    unittest.main()
