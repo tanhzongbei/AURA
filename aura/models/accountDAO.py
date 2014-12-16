@@ -36,6 +36,7 @@ def encryptPassword(password):
 
 ACCOUNT_TABLE = 'account'    
 SESSION_TABLE = 'session'
+FOLLOW_TABLE = 'follow'
 #------------------------------------------------------------------------------ 
 def register(email, mobile, nickname, password):
     email = mysql.escape(email)
@@ -104,5 +105,42 @@ def checkAccountWithMobile(mobile, password):
             return _code.CODE_ACCOUNT_PASSWORDERROR, None
     else:
         return _code.CODE_ACCOUNT_ACCOUNTNOTMATCH, None
-    
-    
+
+
+def follow(followee, follower):
+    SQL = '''INSERT INTO `%s` (`followee`, `follower`) VALUES (%d, %d)
+          '''% (FOLLOW_TABLE, int(followee), int(follower))
+    db_account.execute(SQL)
+    return  _code.CODE_OK
+
+
+def delFollow(followee, follower):
+    SQL = '''DELETE FROM `%s` WHERE `followee` =%d AND `follower` = %d
+          ''' % (FOLLOW_TABLE, int(followee), int(follower))
+    res = db_account.execute(SQL)
+    if res == 1:
+        return  _code.CODE_OK, res
+    else:
+        return  _code.CODE_FOLLOWER_NOTEXIST, None
+
+
+def queryAllFollowee(userid):
+    SQL = '''SELECT `userid`, `nickname`, `email`, `mobile`, `ctime` FROM `account` LEFT JOIN `follow`
+             ON `follow`.`followee` = `account`.`userid` WHERE `follower` = %d
+          ''' % (int(userid))
+    res = db_account.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return  _code.CODE_OK, res
+    else:
+        return  _code.CODE_FOLLOWEE_NOTEXIST, None
+
+
+def queryAllFollower(userid):
+    SQL = '''SELECT `userid`, `nickname`, `email`, `mobile`, `ctime` FROM `account` LEFT JOIN `follow`
+             ON `follow`.`follower` = `account`.`userid` WHERE `followee` = %d
+          ''' % (int(userid))
+    res = db_account.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return  _code.CODE_OK, res
+    else:
+        return  _code.CODE_FOLLOWER_NOTEXIST, None

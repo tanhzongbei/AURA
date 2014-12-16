@@ -91,4 +91,23 @@ def queryCityId(city):
         return _code.CODE_OK, res[0]
     else:
         return _code.CODE_CITY_NOTEXIST, None
-    
+
+
+def queryAlbumByUid(userid):
+    SQL = '''SELECT `albumid`, `name`, `cityid` FROM `%s` WHERE `userid` = %d
+          ''' % (TABLE_ALBUM, int(userid))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_ALBUM_NOTEXIST, None
+
+
+def queryPhotoInfoByAlbumId(albumid):
+    SQL = '''SELECT `photoid`, `ctime`, `cityid` FROM `%s` WHERE `albumid` = %d
+          ''' % (TABLE_PHOTO, int(albumid))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_ALBUM_NOTEXIST, None

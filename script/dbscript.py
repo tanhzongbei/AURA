@@ -87,7 +87,8 @@ CREATE TABLE `album` (
       `prop` bigint(20) NOT NULL COMMENT 'some properties of the photo',      
       PRIMARY KEY (`albumid`),
       KEY `_album_idx_cityid` (`cityid`),
-      KEY `_album_idx_geohash_mtime` (`geohash`, `mtime`)
+      KEY `_album_idx_geohash_mtime` (`geohash`, `mtime`),
+      KEY `_album_idx_userid` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='album table';
 
 
@@ -101,6 +102,18 @@ CREATE TABLE `city` (
     KEY `city` (`city`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='city table';
 '''
+
+CREATE_FOLLOW = '''
+CREATE TABLE `follow` (
+    `autoid` int unsigned NOT NULL AUTO_INCREMENT,
+    `followee` int(20) NOT NULL,
+    `follower` int(20) NOT NULL,
+    PRIMARY KEY (`autoid`),
+	KEY `_follow_idx_followee` (`followee`),
+	KEY `_follow_idx_follower` (`follower`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='follow and followed';
+'''
+
 
 def createAccount():
 #    SQL = 'CREATE DATABASE %s' % DB_NAME

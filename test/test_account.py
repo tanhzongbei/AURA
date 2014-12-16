@@ -112,6 +112,77 @@ class Test(unittest.TestCase):
         res = self.api('checkNickName', data)
         print res
 
+
+    def testFollow(self):
+        # 1关注2，2关注1，3关注1，然后互相查看关注的关系
+        username1 = 'testsession%d1@ks.com' % int(time.time())
+        username2 = 'testsession%d2@ks.com' % int(time.time())
+        username3 = 'testsession%d3@ks.com' % int(time.time())
+        self.register(username1)
+        self.register(username2)
+        self.register(username3)
+
+        token1, userid1 = self.login(username1)
+        token2, userid2 = self.login(username2)
+        token3, userid3 = self.login(username3)
+
+        res = self.api('follow', ujson.dumps({'followeeid' : userid2, 'token' : token1}))
+        assert res['result_code'] == 10000, res
+
+        res = self.api('follow', ujson.dumps({'followeeid' : userid1, 'token' : token2}))
+        assert res['result_code'] == 10000, res
+
+        res = self.api('follow', ujson.dumps({'followeeid' : userid1, 'token' : token3}))
+        assert res['result_code'] == 10000, res
+
+        # check user1
+        res = self.api('getAllFollower', ujson.dumps({'token' : token1}))
+        assert res['result_code'] == 10000, res
+        for item in res['follower']:
+            assert item['userid'] in (userid2, userid3)
+
+        res = self.api('getAllFollowee', ujson.dumps({'token' : token1}))
+        assert res['result_code'] == 10000, res
+        for item in res['followee']:
+            assert item['userid'] == userid2
+
+        # check user2
+        res = self.api('getAllFollower', ujson.dumps({'token' : token2}))
+        assert res['result_code'] == 10000, res
+        for item in res['follower']:
+            assert item['userid'] == userid1
+
+        res = self.api('getAllFollowee', ujson.dumps({'token' : token2}))
+        assert res['result_code'] == 10000, res
+        for item in res['followee']:
+            assert item['userid'] == userid1
+
+        # check user3
+        res = self.api('getAllFollower', ujson.dumps({'token' : token3}))
+        assert  res['result_code'] == 16002
+        res = self.api('getAllFollowee', ujson.dumps({'token' : token3}))
+        assert res['result_code'] == 10000, res
+        for item in res['followee']:
+            assert item['userid'] == userid1
+
+
+    def register(self, username, password = '123456'):
+        data = {'email':username, 'password': password, 'nickname' : username + 'nickname'}
+        data = ujson.dumps(data)
+
+        res = self.api('emailRegist', data)
+        assert res['result_code'] == 10000, res
+
+
+    def login(self, username, password = '123456', type = 'email'):
+        data = {'username' : username, 'password':password, 'type' : type}
+        data = ujson.dumps(data)
+
+        res = self.api('login', data)
+        assert res['result_code'] == 10000
+        token = res['token']
+        userid = res['userid']
+        return  token, userid
     
 if __name__ == '__main__':
-    unittest.main(Test.testSession)
+    unittest.main(defaultTest = 'Test.testFollow')

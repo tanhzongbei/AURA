@@ -8,6 +8,7 @@ from base import application
 
 from aura.apis import (
     apiaura,
+    apifollow,
 )
 
 __all__ = [

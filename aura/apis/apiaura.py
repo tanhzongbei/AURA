@@ -74,9 +74,8 @@ def login():
         userid = res['userid']
         #create session
         code, token = sessionDAO.createSession(userid, deviceId, ip)
-        
-        #todo session and accountinfo
-        ret = {'result_code':code, 'token' : token}
+
+        ret = {'result_code':code, 'token' : token, 'userid' : userid}
     else:
         ret = {'result_code':code}
     return jsonify(ret)
@@ -111,7 +110,7 @@ def confirm():
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
     
     code, userid = sessionDAO.querySession(token)
-    ret = {'result_code':code}
+    ret = {'result_code': code, 'userid' : userid}
     return jsonify(ret)
 
 
@@ -219,6 +218,41 @@ def commit():
     code, res = fileDAO.insertPhoto(albumid, geohash, cityid, userid, sha1)
     if code == _code.CODE_OK:
         return jsonify({'result_code': code, 'photoid' : res})
+    else:
+        return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryAlbumByUid', methods = ['POST'])
+def queryAlbumByUid():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    code, res = fileDAO.queryAlbumByUid(userid)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code': code, 'albums' : res})
+    else:
+        return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryPhotoInfo', methods = ['POST'])
+def queryPhotoInfoByAlbum():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    albumid = args.get('albumid', None)
+
+    if not albumid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.queryPhotoInfoByAlbumId(albumid)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code': code, 'photoes' : res})
     else:
         return jsonify({'result_code' : code})
 
