@@ -222,8 +222,8 @@ def commit():
         return jsonify({'result_code' : code})
 
 
-@application.route('/aura/queryAlbumByUid', methods = ['POST'])
-def queryAlbumByUid():
+@application.route('/aura/queryAlbum', methods = ['POST'])
+def queryAlbum():
     args = request.json
     token = args.get('token', None)
     code, userid = getSessionData(token)
@@ -255,6 +255,81 @@ def queryPhotoInfoByAlbum():
         return jsonify({'result_code': code, 'photoes' : res})
     else:
         return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryPhotoInfoByFcount', methods = ['POST'])
+def queryPhotoInfoByFcount():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    albumid = args.get('albumid', None)
+    cursor = args.get('cursor', 0)
+    size = args.get('size', 100)
+
+    if not albumid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.queryPhotoInfoByFcount(albumid, cursor, size)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code': code, 'photoes' : res})
+    else:
+        return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryPhotoInfoByCtime', methods = ['POST'])
+def queryPhotoInfoByCtime():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    albumid = args.get('albumid', None)
+    cursor = args.get('cursor', 0)
+    size = args.get('size', 100)
+
+    if not albumid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.queryPhotoInfoByCtime(albumid, cursor, size)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code': code, 'photoes' : res})
+    else:
+        return jsonify({'result_code' : code})
+
+
+@application.route('/aura/favourite', methods = ['POST'])
+def favourite():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    photoid = args.get('photoid', None)
+
+    code, __ = fileDAO.addFavourite(userid, photoid)
+    return jsonify({'result_code' : code})
+
+
+@application.route('/aura/delFavourite', methods = ['POST'])
+def delFavourite():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    photoid = args.get('photoid', None)
+
+    code, __ = fileDAO.delFavourite(userid, photoid)
+    return jsonify({'result_code' : code})
+
+
+
 
 
 #------------------------------------------------------------------------------ 

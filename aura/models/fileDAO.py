@@ -17,6 +17,7 @@ import time
 TABLE_PHOTO = 'photo'
 TABLE_ALBUM = 'album'
 TABLE_CITY = 'city'
+TABLE_FAVOURITE = 'favourite'
 
 DELAY_TIME = 2 * 3600
 #------------------------------------------------------------------------------ 
@@ -111,3 +112,76 @@ def queryPhotoInfoByAlbumId(albumid):
         return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
+
+
+def queryPhotoInfoByFcount(albumid, cursor, size):
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount` FROM `%s` WHERE `albumid` = %d and photoid > %d order by `fcount` LIMIT %d
+          ''' % (TABLE_PHOTO, int(albumid), int(cursor), int(size))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_ALBUM_NOTEXIST, None
+
+
+def queryPhotoInfoByCtime(albumid, cursor, size):
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount` FROM `%s` WHERE `albumid` = %d and photoid > %d order by `ctime` LIMIT %d
+          ''' % (TABLE_PHOTO, int(albumid), int(cursor), int(size))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_ALBUM_NOTEXIST, None
+
+
+def addFavourite(userid, photoid):
+    SQL = '''INSERT INTO `%s` (`photoid`, `userid`) VALUES ('%s', '%s')
+          ''' % (TABLE_FAVOURITE, mysql.escape(photoid), mysql.escape(userid))
+    autoid, rows = db_album.insert(SQL)
+    if rows == 1:
+        SQL = '''UPDATE `%s` SET `fcount` = `fcount` + 1 WHERE `photoid` = '%s'
+              ''' % (TABLE_PHOTO, mysql.escape(photoid))
+        rows = db_album.execute(SQL)
+        if rows == 1:
+            return _code.CODE_OK, None
+        else:
+            return  _code.CODE_FILEOP_DBERROR, None
+
+    else:
+        return _code.CODE_FILEOP_DBERROR, None
+
+
+def delFavourite(userid, photoid):
+    SQL = '''DELETE FROM `%s` WHERE `userid` = '%s' AND `photoid` = '%s' LIMIT 1
+          ''' % (TABLE_FAVOURITE, mysql.escape(userid), mysql.escape(photoid))
+    rows = db_album.execute(SQL)
+    if rows == 1:
+        SQL = '''UPDATE `%s` SET `fcount` = `fcount` - 1 WHERE `photoid` = '%s'
+              ''' % (TABLE_PHOTO, mysql.escape(photoid))
+        rows = db_album.execute(SQL)
+        if rows == 1:
+            return _code.CODE_OK, None
+        else:
+            return  _code.CODE_FILEOP_DBERROR, None
+    else:
+        return _code.CODE_FILEOP_DBERROR, None
+
+
+def queryFavouriteByUid(userid):
+    SQL = '''SELECT `photoid` FROM `%s` WHERE `userid` = '%s'
+          ''' % (TABLE_FAVOURITE, mysql.escape(userid))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_FAVOURITE_NOTEXIST, None
+
+
+def queryFavouriteByPid(photoid):
+    SQL = '''SELECT `userid` FROM `%s` WHERE `photoid` = '%s'
+          ''' % (TABLE_FAVOURITE, mysql.escape(photoid))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_FAVOURITE_NOTEXIST, None

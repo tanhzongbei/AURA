@@ -67,11 +67,13 @@ CREATE TABLE `photo` (
   `cityid` int(10) unsigned DEFAULT NULL,
   `userid` bigint(20) NOT NULL,
   `sha1` varchar(40) NOT NULL,
+  `fcount` bigint(20) DEFAULT 0,
   `optime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `prop` bigint(20) NOT NULL COMMENT 'some properties of the photo',
   PRIMARY KEY (`photoid`),
   KEY `_photo_idx_albumid` (`albumid`),
-  KEY `_photo_idx_geohash_ctime` (`geohash`,`optime`)
+  KEY `_photo_idx_geohash_ctime` (`geohash`,`optime`),
+  KEY `_photo_idx_` (`albumid`,`fcount`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='photo album table';
 
 '''
@@ -115,12 +117,24 @@ CREATE TABLE `follow` (
 '''
 
 
+CREATE_FAVOURITE = '''
+CREATE TABLE `favourite` (
+    `autoid` int unsigned NOT NULL AUTO_INCREMENT,
+    `photoid` bigint(20) unsigned NOT NULL,
+    `userid` bigint(20) NOT NULL,
+    PRIMARY KEY (`autoid`),
+    KEY `_favourite_idx_pid` (`photoid`),
+    KEY `_favourite_idx_uid` (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='faviourite';
+'''
+
+
 def createAccount():
 #    SQL = 'CREATE DATABASE %s' % DB_NAME
 #    cursor.execute(SQL)
     SQL = 'USE %s' % DB_ALBUM
     cursor.execute(SQL)    
-    cursor.execute(CREATE_PHOTO)
+    cursor.execute(CREATE_FAVOURITE)
 
 
 def main():
