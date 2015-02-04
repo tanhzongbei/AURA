@@ -237,6 +237,23 @@ def queryAlbum():
         return jsonify({'result_code' : code})
 
 
+@application.route('/aura/queryAlbumByUid', methods = ['POST'])
+def queryAlbumByUid():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    uid = args.get('userid', None)
+
+    code, res = fileDAO.queryAlbumByUid(uid)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code': code, 'albums' : res})
+    else:
+        return jsonify({'result_code' : code})
+
+
 @application.route('/aura/queryPhotoInfo', methods = ['POST'])
 def queryPhotoInfoByAlbum():
     args = request.json

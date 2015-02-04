@@ -116,10 +116,17 @@ class Test(unittest.TestCase):
         res = self.api('favourite', ujson.dumps(data))
         assert res['result_code'] == 10000
 
+        data = {'token':self.token, 'userid' : self.userid}
+        res = self.api('queryAlbumByUid', ujson.dumps(data))
+        assert res['result_code'] == 10000
+        print res
+
+
         data = {'token':self.token}
         res = self.api('queryAlbum', ujson.dumps(data))
         assert res['result_code'] == 10000
         albumid = res['albums'][0]['albumid']
+
 
         data = {'token':self.token, 'albumid' : albumid}
         res = self.api('queryPhotoInfoByFcount', ujson.dumps(data))
