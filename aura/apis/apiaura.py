@@ -16,6 +16,7 @@ import definecode as _code
 import ujson
 from aura.models.geo import geomisc
 from aura.models.oss import ossmisc
+import ujson
 
 @application.route('/aura/emailRegist', methods=['POST'])
 def emailRegist():
@@ -252,6 +253,28 @@ def queryAlbumByUid():
         return jsonify({'result_code': code, 'albums' : res})
     else:
         return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryAlbumByUidList', methods = ['POST'])
+def queryAlbumByUidList():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    uid_list = args.get('uid_list', None)
+    uid_list = ujson.loads(uid_list)
+
+    res_list = list()
+    for uid in uid_list:
+        code, res = fileDAO.queryAlbumByUid(uid)
+        if code == _code.CODE_OK:
+            res_list.append({'uid': uid, 'albums' : [ i for i in res]})
+        else:
+            res_list.append({'uid': uid, 'albums' : code})
+
+    return jsonify({'result_code' : _code.CODE_OK, 'result' : ujson.dumps(res_list)})
 
 
 @application.route('/aura/queryPhotoInfo', methods = ['POST'])

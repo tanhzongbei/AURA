@@ -111,6 +111,7 @@ class Test(unittest.TestCase):
         res = self.api('recommendAlbum', data)
         print res
 
+
 #------------------------------------------------------------------------------ 
 if __name__ == '__main__':
     unittest.main(Test.testRecommendAlbum)

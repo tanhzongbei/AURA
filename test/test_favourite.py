@@ -137,6 +137,10 @@ class Test(unittest.TestCase):
         assert res['result_code'] == 10000
         assert res['photoes'][0]['fcount'] == '1'
 
+        data = {'token':self.token, 'uid_list' : ujson.dumps([95,96,97,98,99])}
+        res = self.api('queryAlbumByUidList', ujson.dumps(data))
+        print res
+
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
