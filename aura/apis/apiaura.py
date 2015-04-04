@@ -13,7 +13,6 @@ from aura.models import (
                          fileDAO
                          )
 import definecode as _code
-import ujson
 from aura.models.geo import geomisc
 from aura.models.oss import ossmisc
 import ujson
@@ -139,7 +138,7 @@ def recommendAlbum():
     
     code, res = fileDAO.queryPhotoInfoByLocate(geohash)
     if code == _code.CODE_OK:
-        return jsonify({'result_code' : code, 'albums' : res})
+        return jsonify({'result_code' : code, 'photoes' : res})
     else:
         return jsonify({'result_code' : code})
 
@@ -155,8 +154,10 @@ def createAlbum():
     latitude = args.get('latitude', None)
     longitude = args.get('longitude', None)
     name = args.get('name', None)
+    type = args.get('type', None)
+    onlyfindbyfriend = args.get('onlyfindbyfriend', None)
     
-    if not latitude or not longitude or not name:
+    if not latitude or not longitude or not name or not type:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})        
     
     code, result = geomisc.getLocation(latitude, longitude)
@@ -173,12 +174,29 @@ def createAlbum():
         
     geohash = geomisc.getGeoHash(latitude, longitude)
         
-    code, res = fileDAO.insertAlbum(name, geohash, cityid, userid)
+    code, res = fileDAO.insertAlbum(name, geohash, cityid, userid, type, onlyfindbyfriend)
     if code == _code.CODE_OK:
         return jsonify({'result_code': code, 'albumid' : res})
     else:
         return jsonify({'result_code' : code})
      
+
+@application.route('/aura/setOnlyFindbyFriend')
+def setOnlyFindbyFriend():
+    args = request.json
+
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    albumid = args.get('albumid', None)
+    onlyfindbyfriend = args.get('onlyfindbyfriend', None)
+    if not albumid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.setOnlyFindbyFriend(albumid, onlyfindbyfriend)
+    return jsonify({'result_code' : code})
 
 
 @application.route('/aura/commit', methods = ['POST'])
@@ -369,7 +387,59 @@ def delFavourite():
     return jsonify({'result_code' : code})
 
 
+@application.route('/aura/queryMostPopPhoto', methods = ['POST'])
+def queryMostPopPhoto():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    cursor = args.get('cursor', 0)
+    size = args.get('size', 10)
+
+    code, res = fileDAO.queryMostPopPhothoes(cursor, size)
+
+    return jsonify({'result_code' : code, 'photoes' : res})
 
 
+@application.route('/aura/recommendAlbumByCity', methods = ['POST'])
+def recommendAlbumByCity():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    city = args.get('city', None)
+    cursor = args.get('cursor', 0)
+    size = args.get('size', 10)
+    if not city:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.queryPhotoInfoByCity(city, cursor, size)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code' : code, 'photoes' : res})
+    else:
+        return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryCityInfo', methods = ['POST'])
+def queryCityInfo():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    cityid = args.get('cityid', None)
+    if not cityid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.queryCityInfo(cityid)
+    if res:
+        return jsonify({'result_code':code, 'city' : res})
+    else:
+        return jsonify({'result_code' : code})
 
 #------------------------------------------------------------------------------ 

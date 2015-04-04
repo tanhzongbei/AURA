@@ -25,6 +25,12 @@ from aura.models.oss import ossmisc
 #(40.0425140000,116.3293040000) 的地址是：北京市海淀区小营西路33号金山软件大厦
 #(40.0493550000,116.3251520000) 的地址时：北京市海淀区安宁庄西路9号 当代城市家园
 
+TYPE_TOURISM = 'tourism'
+TYPE_SPORTS = 'sports'
+TYPE_PARTY = 'party'
+TYPE_SHOW = 'show'
+TYPE_PRIVTE = 'private'
+
 def genusername(n = 6):
     SAMPLE = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     return ''.join([random.choice(SAMPLE) for _i in xrange(n)])
@@ -70,7 +76,9 @@ class Test(unittest.TestCase):
 
     def testUploadPhoto(self):
         name = 'test2%d' % int(time.time())
-        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'name' : name}
+        data = {'token' : self.token, 'latitude':40.0425140000,
+                'longitude': 116.3293040000, 'name' : name,
+                'type' : TYPE_PRIVTE, 'onlyfindbyfriend' : 0}
         data = ujson.dumps(data)
 
         res = self.api('createAlbum', data)
@@ -119,7 +127,6 @@ class Test(unittest.TestCase):
         data = {'token':self.token, 'userid' : self.userid}
         res = self.api('queryAlbumByUid', ujson.dumps(data))
         assert res['result_code'] == 10000
-        print res
 
 
         data = {'token':self.token}
@@ -132,14 +139,28 @@ class Test(unittest.TestCase):
         res = self.api('queryPhotoInfoByFcount', ujson.dumps(data))
         assert res['result_code'] == 10000
         assert res['photoes'][0]['fcount'] == '1'
+        assert res['photoes'][0]['sha1'] is not None
 
         res = self.api('queryPhotoInfoByCtime', ujson.dumps(data))
         assert res['result_code'] == 10000
         assert res['photoes'][0]['fcount'] == '1'
+        assert res['photoes'][0]['sha1'] is not None
 
         data = {'token':self.token, 'uid_list' : ujson.dumps([95,96,97,98,99])}
         res = self.api('queryAlbumByUidList', ujson.dumps(data))
+
+        data = {'token' : self.token}
+        res = self.api('queryMostPopPhoto', ujson.dumps(data))
+        assert res['result_code'] == 10000
+
+        data = {'token' : self.token, 'cursor' : 10, 'size' : 2}
+        res = self.api('queryMostPopPhoto', ujson.dumps(data))
+        assert res['result_code'] == 10000
         print res
+
+        data = {'token' : self.token, 'cityid' : 1}
+        res = self.api('queryCityInfo' , ujson.dumps(data))
+        assert res['result_code'] == 10000
 
 
 #------------------------------------------------------------------------------

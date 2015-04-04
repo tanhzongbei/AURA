@@ -24,6 +24,12 @@ def genusername(n = 6):
     SAMPLE = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     return ''.join([random.choice(SAMPLE) for _i in xrange(n)]) 
 
+TYPE_TOURISM = 'tourism'
+TYPE_SPORTS = 'sports'
+TYPE_PARTY = 'party'
+TYPE_SHOW = 'show'
+TYPE_PRIVTE = 'private'
+
 
 class Test(unittest.TestCase):
     def setUp(self):
@@ -55,7 +61,9 @@ class Test(unittest.TestCase):
     
     def testCreateAlbum(self):
         name = 'test%d' % int(time.time())
-        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'name' : name}
+        data = {'token' : self.token, 'latitude':40.0425140000,
+                'longitude': 116.3293040000, 'name' : name,
+                'type' : TYPE_PRIVTE, 'onlyfindbyfriend' : 0}
         data = ujson.dumps(data)
         
         res = self.api('createAlbum', data)
@@ -109,6 +117,13 @@ class Test(unittest.TestCase):
         data = {'token' : self.token, 'latitude':40.0493550000, 'longitude':116.3251520000}
         data = ujson.dumps(data)
         res = self.api('recommendAlbum', data)
+        print res
+
+
+    def testRecommendAlbumByCity(self):
+        data = {'token' : self.token, 'city' : '北京市'}
+        data = ujson.dumps(data)
+        res = self.api('recommendAlbumByCity', data)
         print res
 
 
