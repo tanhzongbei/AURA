@@ -156,12 +156,14 @@ class Test(unittest.TestCase):
         data = {'token' : self.token, 'cursor' : 10, 'size' : 2}
         res = self.api('queryMostPopPhoto', ujson.dumps(data))
         assert res['result_code'] == 10000
-        print res
 
         data = {'token' : self.token, 'cityid' : 1}
         res = self.api('queryCityInfo' , ujson.dumps(data))
         assert res['result_code'] == 10000
 
+        data = {'token' : self.token, 'mtime' : '2015-04-01 00:00:00'}
+        res = self.api('queryRecentlyInfo', ujson.dumps(data))
+        print res
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':

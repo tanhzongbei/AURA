@@ -404,7 +404,7 @@ def queryMostPopPhoto():
 
 
 @application.route('/aura/recommendAlbumByCity', methods = ['POST'])
-def recommendAlbumByCity():
+def recommendPhotoesByCity():
     args = request.json
     token = args.get('token', None)
     code, userid = getSessionData(token)
@@ -441,5 +441,34 @@ def queryCityInfo():
         return jsonify({'result_code':code, 'city' : res})
     else:
         return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryRecentlyInfo', methods = ['POST'])
+def queryRecentlyInfo():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    cursor_time = args.get('mtime', None)
+
+    ret_list = list()
+    code, res = accountDAO.queryAllFollowee(userid)
+    if code == _code.CODE_OK:
+        for item in res:
+            code, res = fileDAO.queryRecentlyInfo(item['userid'], cursor_time)
+            if code == _code.CODE_OK:
+                ret_list.append(res)
+
+    code, res = fileDAO.queryRecentlyInfo(userid, cursor_time)
+    if code == _code.CODE_OK:
+        ret_list.append(res[0])
+
+    return jsonify({'result_code' : code, 'photoes' : ret_list})
+
+
+
+
 
 #------------------------------------------------------------------------------ 

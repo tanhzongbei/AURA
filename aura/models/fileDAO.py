@@ -36,13 +36,30 @@ def insertPhoto(albumid, geohash, cityid, userid, sha1, prop = 0):
         return _code.CODE_FILEOP_DBERROR, None 
 
 
+def queryAlbumCoverPhoto(albumid):
+    SQL = '''SELECT `photoid`, `sha1`, `fcount`, `cityid` FROM `photo` WHERE `albumid` = %d ORDER BY `fcount` DESC LIMIT 1
+          ''' % int(albumid)
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        __, city = queryCityInfo(res[0]['cityid'])
+        res[0]['city'] = city['city']
+        return _code.CODE_OK, res[0]
+    else:
+        return _code.CODE_PHOTO_NOTEXIST, None
+
+
 def queryPhotoInfoByLocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
-    SQL = '''SELECT `albumid`, `cityid`, `userid` ,`sha1` FROM `%s` WHERE `geohash` LIKE '%s' AND `optime` > '%s'
-    ''' % (TABLE_PHOTO, geohash[:5] + '%', mtime)
+    SQL = '''SELECT `albumid`, `cityid`, `userid`, `type`, `onlyfindbyfriend` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
+    ''' % (TABLE_ALBUM, geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
+        for item in res:
+            photo_code, photo_res = queryAlbumCoverPhoto(item['albumid'])
+            if photo_code == _code.CODE_OK:
+                item.update(photo_res)
+
         return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
@@ -55,10 +72,19 @@ def queryPhotoInfoByCity(city, cursor = 0, size = 100):
     else:
         cityId = cityId['autoid']
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME_3DAYS)
-    SQL = '''SELECT `albumid`, `userid` ,`sha1` FROM `%s` WHERE `cityid` = %d AND `optime` > '%s' ORDER BY `fcount` DESC LIMIT %d,%d
+    SQL = '''SELECT `albumid`, `userid` ,`sha1`, `cityid` FROM `%s` WHERE `cityid` = %d AND `optime` > '%s' ORDER BY `fcount` DESC LIMIT %d,%d
           ''' % (TABLE_PHOTO, int(cityId), mtime, cursor, size)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
+        for item in res:
+            album_code, albuminfo = queryAlbumInfo(item['albumid'])
+            if album_code == _code.CODE_OK:
+                item['albuminfo'] = albuminfo
+            else:
+                item['albuminfo'] = 'None'
+            __, city = queryCityInfo(item['cityid'])
+            item['city'] = city['city']
+
         return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
@@ -91,10 +117,12 @@ def setOnlyFindbyFriend(albumid, onlyfindbyfriend):
 def queryAlbumBylocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
-    SQL = '''SELECT `albumid`, `name`, `cityid`, `userid`, `type` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
-    ''' % (TABLE_ALBUM, geohash[:5] + '%', mtime)
+    SQL = '''SELECT `albumid`, `name`, `cityid`, `userid`, `type` FROM `album` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
+    ''' % (geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
+        __, city = queryCityInfo(res[0]['cityid'])
+        res[0]['city'] = city['city']
         return _code.CODE_OK, res[0]
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
@@ -133,10 +161,13 @@ def queryCityInfo(cityid):
 
 
 def queryAlbumByUid(userid):
-    SQL = '''SELECT `albumid`, `name`, `cityid`, `type` FROM `%s` WHERE `userid` = %d
-          ''' % (TABLE_ALBUM, int(userid))
+    SQL = '''SELECT `albumid`, `name`, `cityid`, `type` FROM `album` WHERE `userid` = %d
+          ''' % int(userid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
+        for item in res:
+            __, city = queryCityInfo(item['cityid'])
+            item['city'] = city['city']
         return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
@@ -144,29 +175,41 @@ def queryAlbumByUid(userid):
 
 def queryPhotoInfoByAlbumId(albumid):
     SQL = '''SELECT `photoid`, `ctime`, `cityid`, `sha1` FROM `%s` WHERE `albumid` = %d
-          ''' % (TABLE_PHOTO, int(albumid))
+          ''' % int(albumid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
+        for item in res:
+            __, city = queryCityInfo(item['cityid'])
+            item['city'] = city['city']
         return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
 
 
 def queryPhotoInfoByFcount(albumid, cursor, size):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1` FROM `%s` WHERE `albumid` = %d and photoid > %d order by `fcount` LIMIT %d
-          ''' % (TABLE_PHOTO, int(albumid), int(cursor), int(size))
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `fcount` LIMIT %d
+          ''' % (int(albumid), int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
+        for item in res:
+            __, city = queryCityInfo(item['cityid'])
+            item['city'] = city['city']
+
+
         return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
 
 
 def queryPhotoInfoByCtime(albumid, cursor, size):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1` FROM `%s` WHERE `albumid` = %d and photoid > %d order by `ctime` LIMIT %d
-          ''' % (TABLE_PHOTO, int(albumid), int(cursor), int(size))
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `ctime` LIMIT %d
+          ''' % (int(albumid), int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
+        for item in res:
+            __, city = queryCityInfo(item['cityid'])
+            item['city'] = city['city']
+
         return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
@@ -224,11 +267,51 @@ def queryFavouriteByPid(photoid):
     else:
         return _code.CODE_FAVOURITE_NOTEXIST, None
 
-def queryMostPopPhothoes(cursor = 0, size = 10):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid` FROM `%s` ORDER BY `fcount` DESC LIMIT %d,%d
-          ''' % (TABLE_PHOTO, int(cursor), int(size))
+
+def queryAlbumInfo(albumid):
+    SQL = '''SELECT `name`, `mtime`, `type`, `onlyfindbyfriend` FROM `album` WHERE `albumid` = %d LIMIT 1
+          ''' % int(albumid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
+        return _code.CODE_OK, res[0]
+    else:
+        return _code.CODE_ALBUM_NOTEXIST, None
+
+
+def queryMostPopPhothoes(cursor = 0, size = 10):
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid` FROM `photo`  ORDER BY `fcount` DESC LIMIT %d,%d
+          ''' % (int(cursor), int(size))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        for item in res:
+            album_code, albuminfo = queryAlbumInfo(item['albumid'])
+            if album_code == _code.CODE_OK:
+                item['albuminfo'] = albuminfo
+            else:
+                item['albuminfo'] = 'None'
+            __, city = queryCityInfo(item['cityid'])
+            item['city'] = city['city']
+
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_ACCOUNT_DBERROR, None
+
+
+def queryRecentlyInfo(userid, cursor):
+    cursor = mysql.escape(cursor)
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `userid` FROM `photo` WHERE `userid` = %d AND `ctime` > '%s' ORDER BY `fcount` DESC
+          ''' % (int(userid), cursor)
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        for item in res:
+            album_code, albuminfo = queryAlbumInfo(item['albumid'])
+            if album_code == _code.CODE_OK:
+                item['albuminfo'] = albuminfo
+            else:
+                item['albuminfo'] = 'None'
+            __, city = queryCityInfo(item['cityid'])
+            item['city'] = city['city']
+
         return _code.CODE_OK, res
     else:
         return _code.CODE_ACCOUNT_DBERROR, None

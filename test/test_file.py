@@ -73,7 +73,7 @@ class Test(unittest.TestCase):
 
     def testUploadPhoto(self):
         name = 'test2%d' % int(time.time())
-        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'name' : name}
+        data = {'token' : self.token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'name' : name, 'type' : TYPE_PRIVTE, 'onlyfindbyfriend' : 0}
         data = ujson.dumps(data)
         
         res = self.api('createAlbum', data)
@@ -121,7 +121,7 @@ class Test(unittest.TestCase):
 
 
     def testRecommendAlbumByCity(self):
-        data = {'token' : self.token, 'city' : '北京市'}
+        data = {'token' : self.token, 'city' : '武汉市'}
         data = ujson.dumps(data)
         res = self.api('recommendAlbumByCity', data)
         print res
@@ -129,4 +129,4 @@ class Test(unittest.TestCase):
 
 #------------------------------------------------------------------------------ 
 if __name__ == '__main__':
-    unittest.main(Test.testRecommendAlbum)
+    unittest.main()
