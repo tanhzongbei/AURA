@@ -52,6 +52,20 @@ def checkNickName():
     return jsonify({'result_code':_code.CODE_OK, 'exist' : res})
 
 
+@application.route('/aura/updateThumbnail', methods=['POST'])
+def updateThumbnail():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    thumbnail = args.get('thumbnail', None)
+    if not thumbnail:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+
+
 @application.route('/aura/login', methods=['POST'])
 def login():
     header = request.headers.environ
@@ -138,7 +152,7 @@ def recommendAlbum():
     
     code, res = fileDAO.queryPhotoInfoByLocate(geohash)
     if code == _code.CODE_OK:
-        return jsonify({'result_code' : code, 'photoes' : res})
+        return jsonify({'result_code' : code, 'albums' : res})
     else:
         return jsonify({'result_code' : code})
 
@@ -251,7 +265,7 @@ def queryAlbum():
 
     code, res = fileDAO.queryAlbumByUid(userid)
     if code == _code.CODE_OK:
-        return jsonify({'result_code': code, 'albums' : res})
+        return jsonify({'result_code': code, 'albums': res})
     else:
         return jsonify({'result_code' : code})
 
@@ -308,7 +322,7 @@ def queryPhotoInfoByAlbum():
     if not albumid:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
-    code, res = fileDAO.queryPhotoInfoByAlbumId(albumid)
+    code, res = fileDAO.queryPhotoInfoByAlbumId(userid, albumid)
     if code == _code.CODE_OK:
         return jsonify({'result_code': code, 'photoes' : res})
     else:
@@ -330,7 +344,7 @@ def queryPhotoInfoByFcount():
     if not albumid:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
-    code, res = fileDAO.queryPhotoInfoByFcount(albumid, cursor, size)
+    code, res = fileDAO.queryPhotoInfoByFcount(userid, albumid, cursor, size)
     if code == _code.CODE_OK:
         return jsonify({'result_code': code, 'photoes' : res})
     else:
@@ -352,7 +366,7 @@ def queryPhotoInfoByCtime():
     if not albumid:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
-    code, res = fileDAO.queryPhotoInfoByCtime(albumid, cursor, size)
+    code, res = fileDAO.queryPhotoInfoByCtime(userid, albumid, cursor, size)
     if code == _code.CODE_OK:
         return jsonify({'result_code': code, 'photoes' : res})
     else:
@@ -398,12 +412,12 @@ def queryMostPopPhoto():
     cursor = args.get('cursor', 0)
     size = args.get('size', 10)
 
-    code, res = fileDAO.queryMostPopPhothoes(cursor, size)
+    code, res = fileDAO.queryMostPopPhothoes(userid, cursor, size)
 
     return jsonify({'result_code' : code, 'photoes' : res})
 
 
-@application.route('/aura/recommendAlbumByCity', methods = ['POST'])
+@application.route('/aura/recommendPhotoesByCity', methods = ['POST'])
 def recommendPhotoesByCity():
     args = request.json
     token = args.get('token', None)
@@ -463,12 +477,42 @@ def queryRecentlyInfo():
 
     code, res = fileDAO.queryRecentlyInfo(userid, cursor_time)
     if code == _code.CODE_OK:
-        ret_list.append(res[0])
+        for item in res:
+            ret_list.append(item)
 
     return jsonify({'result_code' : code, 'photoes' : ret_list})
 
 
+@application.route('/aura/deletePhoto', methods = ['POST'])
+def deletePhoto():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
 
+    photoid = args.get('photoid', None)
+    if not photoid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.deletePhoto(photoid)
+    return jsonify({'result_code' : code})
+
+
+@application.route('/aura/deleteAlbum', methods = ['POST'])
+def deleteAlbum():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    albumid = args.get('albumid', None)
+    if not albumid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.deleteAlbum(albumid)
+    return jsonify({'result_code' : code})
 
 
 #------------------------------------------------------------------------------ 

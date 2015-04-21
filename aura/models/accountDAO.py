@@ -144,3 +144,23 @@ def queryAllFollower(userid):
         return  _code.CODE_OK, res
     else:
         return  _code.CODE_FOLLOWER_NOTEXIST, None
+
+
+def updateThumbnail(userid, thumbnail):
+    SQL = '''UPDATE `%s` SET `thumbanil` = '%s' WHERE `userid` = %d
+          ''' % (ACCOUNT_TABLE, mysql.escape(thumbnail), int(userid))
+    rows = db_account.execute(SQL)
+    if rows == 1:
+        return _code.CODE_OK, None
+    else:
+        return _code.CODE_ACCOUNT_NOT_EXIST, None
+
+
+def queryUserInfo(userid):
+    SQL = '''SELECT `nickname`, `thumbnail` FROM `%s` WHERE `userid` = %d LIMIT 1
+          ''' % (ACCOUNT_TABLE, int(userid))
+    res = db_account.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return _code.CODE_OK, res[0]
+    else:
+        return _code.CODE_ACCOUNT_NOT_EXIST, None

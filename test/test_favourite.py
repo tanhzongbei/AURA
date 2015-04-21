@@ -165,6 +165,13 @@ class Test(unittest.TestCase):
         res = self.api('queryRecentlyInfo', ujson.dumps(data))
         print res
 
+    def test1(self):
+            data = {'token' : '', 'mtime' : '2015-04-01 00:00:00'}
+            res = self.api('queryRecentlyInfo', ujson.dumps(data))
+            print res
+
+
+
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
     unittest.main()
