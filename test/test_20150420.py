@@ -220,7 +220,7 @@ class Test(unittest.TestCase):
         assert res['result_code'] == 10000
 
 
-        data = {'token' : token}
+        data = {'token' : '0000005524e9435aaf962efcb303e294', 'mtime' : '2014-01-01 00:00:00'}
         res = self.api('queryRecentlyInfo', ujson.dumps(data))
         print res
 

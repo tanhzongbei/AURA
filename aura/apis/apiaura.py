@@ -480,7 +480,7 @@ def queryRecentlyInfo():
         for item in res:
             ret_list.append(item)
 
-    return jsonify({'result_code' : code, 'photoes' : ret_list})
+    return jsonify({'result_code' : _code.CODE_OK, 'photoes' : ret_list})
 
 
 @application.route('/aura/deletePhoto', methods = ['POST'])
