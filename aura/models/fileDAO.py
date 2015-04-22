@@ -395,6 +395,7 @@ def queryRecentlyInfo(userid, cursor):
                 item['albuminfo'] = 'None'
             __, city = queryCityInfo(item['cityid'])
             item['city'] = city['city']
+            item['haveFavourte'] = haveFavourte(userid, item['photoid'])
 
         return _code.CODE_OK, res
     else:
