@@ -57,7 +57,7 @@ def queryAlbumCoverPhoto(userid, albumid):
 def queryPhotoInfoByLocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
-    SQL = '''SELECT `albumid`, `cityid`, `userid`, `type`, `onlyfindbyfriend`, `location`, `mtime` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
+    SQL = '''SELECT `albumid`, `cityid`, `userid`, `type`, `onlyfindbyfriend`, `location`, `mtime`, `name` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
     ''' % (TABLE_ALBUM, geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
