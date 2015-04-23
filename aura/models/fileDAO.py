@@ -57,7 +57,7 @@ def queryAlbumCoverPhoto(userid, albumid):
 def queryPhotoInfoByLocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
-    SQL = '''SELECT `albumid`, `cityid`, `userid`, `type`, `onlyfindbyfriend` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
+    SQL = '''SELECT `albumid`, `cityid`, `userid`, `type`, `onlyfindbyfriend`, `location` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
     ''' % (TABLE_ALBUM, geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -109,13 +109,14 @@ def queryPhotoInfoByCity(city, cursor = 0, size = 100):
         return _code.CODE_ALBUM_NOTEXIST, None
 
     
-def insertAlbum(name, geohash, cityid, userid, type, onlyfindbyfriend, prop = 0):
+def insertAlbum(name, geohash, cityid, userid, type, onlyfindbyfriend, location, prop = 0):
     geohash = mysql.escape(geohash)
     name = mysql.escape(name)
     type = mysql.escape(type)
-    SQL = '''INSERT INTO `%s` (`name`, `geohash`, `mtime`, `cityid`, `userid`, `type`, `onlyfindbyfriend`, `prop`) VALUES
-            ('%s', '%s', now(), %d, %d, '%s', %d, %d)
-    ''' % (TABLE_ALBUM, name, geohash, int(cityid), int(userid), type, int(onlyfindbyfriend), int(prop))
+    location = mysql.escape(location)
+    SQL = '''INSERT INTO `%s` (`name`, `geohash`, `mtime`, `cityid`, `userid`, `type`, `onlyfindbyfriend`, `location`, `prop`) VALUES
+            ('%s', '%s', now(), %d, %d, '%s', %d, '%s', %d)
+    ''' % (TABLE_ALBUM, name, geohash, int(cityid), int(userid), type, int(onlyfindbyfriend), location, int(prop))
     albumid, rows = db_album.insert(SQL)
     if rows == 1:
         return _code.CODE_OK, albumid
@@ -136,7 +137,7 @@ def setOnlyFindbyFriend(albumid, onlyfindbyfriend):
 def queryAlbumBylocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
-    SQL = '''SELECT `albumid`, `name`, `cityid`, `userid`, `type` FROM `album` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
+    SQL = '''SELECT `albumid`, `name`, `cityid`, `userid`, `type`, `location` FROM `album` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
     ''' % (geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -207,7 +208,7 @@ def queryAlbumIdByPhotoId(photoid):
 
 
 def queryAlbumByUid(userid):
-    SQL = '''SELECT `albumid`, `name`, `cityid`, `type` FROM `album` WHERE `userid` = %d
+    SQL = '''SELECT `albumid`, `name`, `cityid`, `type`, `location` FROM `album` WHERE `userid` = %d
           ''' % int(userid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -341,7 +342,7 @@ def haveFavourte(userid, photoid):
 
 
 def queryAlbumInfo(userid, albumid):
-    SQL = '''SELECT `albumid`, `name`, `mtime`, `type`, `onlyfindbyfriend` FROM `album` WHERE `albumid` = %d LIMIT 1
+    SQL = '''SELECT `albumid`, `name`, `mtime`, `type`, `onlyfindbyfriend`, `location` FROM `album` WHERE `albumid` = %d LIMIT 1
           ''' % int(albumid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:

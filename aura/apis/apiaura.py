@@ -177,6 +177,7 @@ def createAlbum():
     code, result = geomisc.getLocation(latitude, longitude)
     if code == _code.CODE_OK:
         city = result['addressComponent']['city']
+        location = result['formatted_address']
     else:
         return jsonify({'result_code' : code})
     
@@ -188,7 +189,7 @@ def createAlbum():
         
     geohash = geomisc.getGeoHash(latitude, longitude)
         
-    code, res = fileDAO.insertAlbum(name, geohash, cityid, userid, type, onlyfindbyfriend)
+    code, res = fileDAO.insertAlbum(name, geohash, cityid, userid, type, onlyfindbyfriend, location)
     if code == _code.CODE_OK:
         return jsonify({'result_code': code, 'albumid' : res})
     else:

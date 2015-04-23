@@ -206,18 +206,22 @@ class Test(unittest.TestCase):
         data = {'token' : token1, 'albumid' : albumid}
         res = self.api('queryPhotoInfoByFcount', ujson.dumps(data))
         assert res['result_code'] == 10000
+        print res
 
         data = {'token' : token1, 'albumid' : albumid}
         res = self.api('queryPhotoInfoByCtime', ujson.dumps(data))
         assert res['result_code'] == 10000
+        print res
 
         data = {'token' : token1}
         res = self.api('queryMostPopPhoto', ujson.dumps(data))
         assert res['result_code'] == 10000
+        print res
 
         data = {'token' : token, 'city' : '北京市'}
         res = self.api('recommendPhotoesByCity', ujson.dumps(data))
         assert res['result_code'] == 10000
+        print res
 
 
         data = {'token' : token}
