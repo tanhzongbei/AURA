@@ -402,7 +402,7 @@ def queryMostPopPhothoes(userid, cursor = 0, size = 10):
 
 def queryRecentlyInfo(userid, cursor):
     cursor = mysql.escape(cursor)
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `userid` FROM `photo` WHERE `userid` = %d AND `ctime` > '%s' ORDER BY `fcount` DESC
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `userid` FROM `photo` WHERE `userid` = %d AND `ctime` > '%s' ORDER BY `ctime` DESC
           ''' % (int(userid), cursor)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
