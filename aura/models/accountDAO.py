@@ -125,7 +125,7 @@ def delFollow(followee, follower):
 
 
 def queryAllFollowee(userid):
-    SQL = '''SELECT `userid`, `nickname`, `email`, `mobile`, `ctime` FROM `account` LEFT JOIN `follow`
+    SQL = '''SELECT `userid`, `nickname`, `thumbnail`, `email`, `mobile`, `ctime` FROM `account` LEFT JOIN `follow`
              ON `follow`.`followee` = `account`.`userid` WHERE `follower` = %d
           ''' % (int(userid))
     res = db_account.query(SQL, mysql.QUERY_DICT)
@@ -136,7 +136,7 @@ def queryAllFollowee(userid):
 
 
 def queryAllFollower(userid):
-    SQL = '''SELECT `userid`, `nickname`, `email`, `mobile`, `ctime` FROM `account` LEFT JOIN `follow`
+    SQL = '''SELECT `userid`, `nickname`, `thumbnail`, `email`, `mobile`, `ctime` FROM `account` LEFT JOIN `follow`
              ON `follow`.`follower` = `account`.`userid` WHERE `followee` = %d
           ''' % (int(userid))
     res = db_account.query(SQL, mysql.QUERY_DICT)

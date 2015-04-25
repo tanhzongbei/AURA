@@ -88,8 +88,10 @@ def login():
         userid = res['userid']
         #create session
         code, token = sessionDAO.createSession(userid, deviceId, ip)
+        __, userinfo = accountDAO.queryUserInfo(userid)
 
         ret = {'result_code':code, 'token' : token, 'userid' : userid}
+        ret.update(userinfo)
     else:
         ret = {'result_code':code}
     return jsonify(ret)
