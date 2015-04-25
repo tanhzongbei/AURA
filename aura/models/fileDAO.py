@@ -90,7 +90,7 @@ def queryPhotoInfoByCity(city, cursor = 0, size = 100):
     else:
         cityId = cityId['autoid']
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME_3DAYS)
-    SQL = '''SELECT `photoid`, `albumid`, `userid` ,`sha1`, `cityid` FROM `%s` WHERE `cityid` = %d AND `optime` > '%s' ORDER BY `fcount` DESC LIMIT %d,%d
+    SQL = '''SELECT `photoid`, `albumid`, `userid` ,`sha1`, `cityid`, `ctime`, `fcount` FROM `%s` WHERE `cityid` = %d AND `optime` > '%s' ORDER BY `fcount` DESC LIMIT %d,%d
           ''' % (TABLE_PHOTO, int(cityId), mtime, cursor, size)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
