@@ -252,7 +252,7 @@ def queryPhotoInfoByAlbumId(userid, albumid):
 
 
 def queryPhotoInfoByFcount(userid, albumid, cursor, size):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `fcount` DESC LIMIT %d
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `userid` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `fcount` DESC LIMIT %d
           ''' % (int(albumid), int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -261,7 +261,7 @@ def queryPhotoInfoByFcount(userid, albumid, cursor, size):
             item['city'] = city['city']
             item['haveFavourte'] = haveFavourte(userid, item['photoid'])
 
-            account_code, account_info = _account.queryUserInfo(userid)
+            account_code, account_info = _account.queryUserInfo(item['userid'])
             if account_code == _code.CODE_OK:
                 item['creatorinfo'] = account_info
             else:
@@ -273,7 +273,7 @@ def queryPhotoInfoByFcount(userid, albumid, cursor, size):
 
 
 def queryPhotoInfoByCtime(userid, albumid, cursor, size):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `ctime` DESC LIMIT %d
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `userid` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `ctime` DESC LIMIT %d
           ''' % (int(albumid), int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -282,7 +282,7 @@ def queryPhotoInfoByCtime(userid, albumid, cursor, size):
             item['city'] = city['city']
             item['haveFavourte'] = haveFavourte(userid, item['photoid'])
 
-            account_code, account_info = _account.queryUserInfo(userid)
+            account_code, account_info = _account.queryUserInfo(item['userid'])
             if account_code == _code.CODE_OK:
                 item['creatorinfo'] = account_info
             else:
