@@ -474,9 +474,10 @@ def queryRecentlyInfo():
     code, res = accountDAO.queryAllFollowee(userid)
     if code == _code.CODE_OK:
         for item in res:
-            code, res = fileDAO.queryRecentlyInfo(item['userid'], cursor_time)
-            if code == _code.CODE_OK:
-                ret_list.append(res)
+            recently_code, recently_res = fileDAO.queryRecentlyInfo(item['userid'], cursor_time)
+            if recently_code == _code.CODE_OK:
+                for recent_item in recently_res:
+                    ret_list.append(recent_item)
 
     code, res = fileDAO.queryRecentlyInfo(userid, cursor_time)
     if code == _code.CODE_OK:
