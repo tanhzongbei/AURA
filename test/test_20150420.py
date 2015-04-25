@@ -203,6 +203,8 @@ class Test(unittest.TestCase):
         res = self.api('favourite', ujson.dumps(data))
         assert res['result_code'] == 10000
 
+        photoid2 = self.UploadPhoto(token1, albumid)
+
         data = {'token' : token1, 'albumid' : albumid}
         res = self.api('queryPhotoInfoByFcount', ujson.dumps(data))
         assert res['result_code'] == 10000

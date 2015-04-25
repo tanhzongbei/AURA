@@ -95,7 +95,7 @@ def queryPhotoInfoByCity(city, cursor = 0, size = 100):
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
         for item in res:
-            album_code, albuminfo = queryAlbumInfo(item['userid'], item['albumid'])
+            album_code, albuminfo = queryAlbumInfo(item['albumid'])
             if album_code == _code.CODE_OK:
                 item['albuminfo'] = albuminfo
             else:
@@ -103,6 +103,12 @@ def queryPhotoInfoByCity(city, cursor = 0, size = 100):
             __, city = queryCityInfo(item['cityid'])
             item['city'] = city['city']
             item['haveFavourte'] = haveFavourte(item['userid'], item['photoid'])
+
+            account_code, account_info = _account.queryUserInfo(item['userid'])
+            if account_code == _code.CODE_OK:
+                item['creatorinfo'] = account_info
+            else:
+                item['creatorinfo'] = 'None'
 
         return _code.CODE_OK, res
     else:
@@ -255,6 +261,12 @@ def queryPhotoInfoByFcount(userid, albumid, cursor, size):
             item['city'] = city['city']
             item['haveFavourte'] = haveFavourte(userid, item['photoid'])
 
+            account_code, account_info = _account.queryUserInfo(userid)
+            if account_code == _code.CODE_OK:
+                item['creatorinfo'] = account_info
+            else:
+                item['creatorinfo'] = 'None'
+
         return _code.CODE_OK, res
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
@@ -269,6 +281,12 @@ def queryPhotoInfoByCtime(userid, albumid, cursor, size):
             __, city = queryCityInfo(item['cityid'])
             item['city'] = city['city']
             item['haveFavourte'] = haveFavourte(userid, item['photoid'])
+
+            account_code, account_info = _account.queryUserInfo(userid)
+            if account_code == _code.CODE_OK:
+                item['creatorinfo'] = account_info
+            else:
+                item['creatorinfo'] = 'None'
 
         return _code.CODE_OK, res
     else:
@@ -341,8 +359,8 @@ def haveFavourte(userid, photoid):
         return False
 
 
-def queryAlbumInfo(userid, albumid):
-    SQL = '''SELECT `albumid`, `name`, `mtime`, `type`, `onlyfindbyfriend`, `location` FROM `album` WHERE `albumid` = %d LIMIT 1
+def queryAlbumInfo(albumid):
+    SQL = '''SELECT `albumid`, `userid`, `name`, `mtime`, `type`, `onlyfindbyfriend`, `location` FROM `album` WHERE `albumid` = %d LIMIT 1
           ''' % int(albumid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -351,7 +369,7 @@ def queryAlbumInfo(userid, albumid):
         if ext_code == _code.CODE_OK:
             albuminfo.update(ext_res)
 
-        account_code, account_info = _account.queryUserInfo(userid)
+        account_code, account_info = _account.queryUserInfo(albuminfo['userid'])
         if account_code == _code.CODE_OK:
             albuminfo['creatorinfo'] = account_info
         else:
@@ -368,7 +386,7 @@ def queryMostPopPhothoes(userid, cursor = 0, size = 10):
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
         for item in res:
-            album_code, albuminfo = queryAlbumInfo(userid, item['albumid'])
+            album_code, albuminfo = queryAlbumInfo(item['albumid'])
             if album_code == _code.CODE_OK:
                 item['albuminfo'] = albuminfo
             else:
@@ -389,7 +407,7 @@ def queryRecentlyInfo(userid, cursor):
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
         for item in res:
-            album_code, albuminfo = queryAlbumInfo(userid, item['albumid'])
+            album_code, albuminfo = queryAlbumInfo(item['albumid'])
             if album_code == _code.CODE_OK:
                 item['albuminfo'] = albuminfo
             else:
@@ -397,6 +415,11 @@ def queryRecentlyInfo(userid, cursor):
             __, city = queryCityInfo(item['cityid'])
             item['city'] = city['city']
             item['haveFavourte'] = haveFavourte(userid, item['photoid'])
+            account_code, account_info = _account.queryUserInfo(userid)
+            if account_code == _code.CODE_OK:
+                item['creatorinfo'] = account_info
+            else:
+                item['creatorinfo'] = 'None'
 
         return _code.CODE_OK, res
     else:

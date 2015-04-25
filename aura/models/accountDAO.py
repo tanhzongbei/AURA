@@ -141,9 +141,9 @@ def queryAllFollower(userid):
           ''' % (int(userid))
     res = db_account.query(SQL, mysql.QUERY_DICT)
     if res:
-        return  _code.CODE_OK, res
+        return _code.CODE_OK, res
     else:
-        return  _code.CODE_FOLLOWER_NOTEXIST, None
+        return _code.CODE_FOLLOWER_NOTEXIST, None
 
 
 def updateThumbnail(userid, thumbnail):
@@ -157,7 +157,7 @@ def updateThumbnail(userid, thumbnail):
 
 
 def queryUserInfo(userid):
-    SQL = '''SELECT `nickname`, `thumbnail` FROM `%s` WHERE `userid` = %d LIMIT 1
+    SQL = '''SELECT `userid`, `nickname`, `thumbnail` FROM `%s` WHERE `userid` = %d LIMIT 1
           ''' % (ACCOUNT_TABLE, int(userid))
     res = db_account.query(SQL, mysql.QUERY_DICT)
     if res:
