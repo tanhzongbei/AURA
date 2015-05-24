@@ -229,7 +229,10 @@ def commit():
     albumid = args.get('albumid', None)
     latitude = args.get('latitude', None)
     longitude = args.get('longitude', None)
-    
+    tag_list = args.get('tag', None)
+    if tag_list:
+        tag = ','.join(i for i in tag_list)
+
     if not sha1 or not albumid or not latitude or not longitude :
         return jsonify({'result_code' : _code.CODE_BADPARAMS})        
 
@@ -251,7 +254,7 @@ def commit():
     else:
         cityid = res['autoid']
     
-    code, res = fileDAO.insertPhoto(albumid, geohash, cityid, userid, sha1)
+    code, res = fileDAO.insertPhoto(albumid, geohash, cityid, userid, sha1, tag)
     if code == _code.CODE_OK:
         return jsonify({'result_code': code, 'photoid' : res})
     else:
@@ -428,10 +431,15 @@ def recommendPhotoesByCity():
     if code != _code.CODE_OK:
         return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
 
-    city = args.get('city', None)
+    latitude = args.get('latitude', None)
+    longitude = args.get('longitude', None)
     cursor = args.get('cursor', 0)
     size = args.get('size', 10)
-    if not city:
+
+    code, result = geomisc.getLocation(latitude, longitude)
+    if code == _code.CODE_OK:
+        city = result['addressComponent']['city']
+    else:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
     code, res = fileDAO.queryPhotoInfoByCity(city, cursor, size)
@@ -517,6 +525,89 @@ def deleteAlbum():
 
     code, res = fileDAO.deleteAlbum(albumid)
     return jsonify({'result_code' : code})
+
+
+@application.route('/aura/updateNickname', methods = ['POST'])
+def updateNickname():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    nickname = args.get('nickname', None)
+    if not nickname:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = accountDAO.updateNickName(userid, nickname)
+    return jsonify({'result_code' : code})
+
+
+@application.route('/aura/updateSign', methods = ['POST'])
+def updateSign():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    sign = args.get('nickname', None)
+    if not sign:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = accountDAO.updateSign(userid, sign)
+    return jsonify({'result_code' : code})
+
+
+@application.route('/aura/addComment', methods = ['POST'])
+def insertComment():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    comment = args.get('comment', None)
+    photoid = args.get('photoid', None)
+    if not comment or not photoid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = fileDAO.insertComment(photoid, userid, comment)
+    return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryComment', methods = ['POST'])
+def queryComment():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    photoid = args.get('photoid', None)
+    size = args.get('size', None)
+    if not photoid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+    if not size:
+        size = 0
+
+    code, res = fileDAO.queryComment(photoid, size)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code' : code, 'comments' : res})
+    else:
+        return jsonify({'result_code' : code})
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #------------------------------------------------------------------------------ 

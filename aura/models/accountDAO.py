@@ -164,3 +164,24 @@ def queryUserInfo(userid):
         return _code.CODE_OK, res[0]
     else:
         return _code.CODE_ACCOUNT_NOT_EXIST, None
+
+
+def updateSign(userid, sign):
+    SQL = '''UPDATE `%s` SET `sign` = '%s' WHERE `userid` = %d LIMIT 1
+          ''' % (ACCOUNT_TABLE, mysql.escape(sign), int(userid))
+    rows = db_account.execute(SQL)
+    if rows == 1:
+        return  _code.CODE_OK, None
+    else:
+        return  _code.CODE_ACCOUNT_NOT_EXIST, None
+
+
+def updateNickName(userid, nickname):
+    SQL = '''UPDATE `%s` SET `nickname` = '%s' WHERE `userid` = %d LIMIT 1
+          ''' % (ACCOUNT_TABLE, mysql.escape(nickname), int(userid))
+    rows = db_account.execute(SQL)
+    if rows == 1:
+        return  _code.CODE_OK, None
+    else:
+        return  _code.CODE_ACCOUNT_NOT_EXIST, None
+

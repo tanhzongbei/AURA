@@ -90,7 +90,10 @@ class Test(unittest.TestCase):
         sha1 = sha.hexdigest()
         
         # first commit
-        data = {'token' : token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'sha1' : sha1, 'albumid' : albumid}
+        data = {'token' : token,
+                'latitude':40.0425140000, 'longitude': 116.3293040000,
+                'sha1' : sha1, 'albumid' : albumid,
+                'tag' : ['测试中文标签', 'test english tag', '第三个测试标签']}
         data = ujson.dumps(data)
         res = self.api('commit', data)
 
@@ -208,26 +211,41 @@ class Test(unittest.TestCase):
         data = {'token' : token1, 'albumid' : albumid}
         res = self.api('queryPhotoInfoByFcount', ujson.dumps(data))
         assert res['result_code'] == 10000
-        print res
 
         data = {'token' : token1, 'albumid' : albumid}
         res = self.api('queryPhotoInfoByCtime', ujson.dumps(data))
         assert res['result_code'] == 10000
-        print res
 
         data = {'token' : token1}
         res = self.api('queryMostPopPhoto', ujson.dumps(data))
         assert res['result_code'] == 10000
-        print res
 
         data = {'token' : token, 'latitude':40.0425140000, 'longitude': 116.3293040000}
         res = self.api('recommendPhotoesByCity', ujson.dumps(data))
         assert res['result_code'] == 10000
-        print res
 
 
         data = {'token' : token}
         res = self.api('queryRecentlyInfo', ujson.dumps(data))
+        assert res['result_code'] == 10000
+
+
+    def test3(self):
+        ### 上传2个文件到相册，然后再删除
+        username, token = self.regist()
+        albumid = self.createAlbum(token)
+
+        photoid1 = self.UploadPhoto(token, albumid)
+#        photoid2 = self.UploadPhoto(token, albumid)
+
+        ### user1为photo1评论
+        username1, token1 = self.regist()
+        data = {'token' : token1, 'comment' : '精彩照片', 'photoid' : photoid1}
+        res = self.api('addComment', ujson.dumps(data))
+        print res
+
+        data = {'token' : token1, 'photoid' : photoid1}
+        res= self.api('queryComment', ujson.dumps(data))
         print res
 
 #------------------------------------------------------------------------------ 

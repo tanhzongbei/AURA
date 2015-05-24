@@ -20,18 +20,19 @@ TABLE_ALBUM = 'album'
 TABLE_CITY = 'city'
 TABLE_FAVOURITE = 'favourite'
 TABLE_ALBUMEXT = 'albumext'
+TABLE_COMMENT = 'comment'
 
 DELAY_TIME = 2 * 3600
 DELAY_TIME_3DAYS = 3 * 24 * 3600
 #------------------------------------------------------------------------------ 
 
-def insertPhoto(albumid, geohash, cityid, userid, sha1, prop = 0):
+def insertPhoto(albumid, geohash, cityid, userid, sha1, tag = None, prop = 0):
     flag = havaAlreadyInAlbum(userid, albumid)
     geohash = mysql.escape(geohash)
     sha1 = mysql.escape(sha1)
-    SQL = '''INSERT INTO `%s` (`albumid`, `ctime`, `geohash`, `cityid`, `userid`, `sha1`, `prop`) VALUES 
-            (%d, now(), '%s', %d, %d, '%s', %d)
-    ''' % (TABLE_PHOTO, int(albumid), geohash, int(cityid), int(userid), sha1, int(prop))
+    SQL = '''INSERT INTO `%s` (`albumid`, `ctime`, `geohash`, `cityid`, `userid`, `sha1`, `tag`, `prop`) VALUES
+            (%d, now(), '%s', %d, %d, '%s', '%s', %d)
+    ''' % (TABLE_PHOTO, int(albumid), geohash, int(cityid), int(userid), sha1, mysql.escape(tag), int(prop))
     photoid, rows = db_album.insert(SQL)
     if rows == 1:
         if not flag:
@@ -42,7 +43,7 @@ def insertPhoto(albumid, geohash, cityid, userid, sha1, prop = 0):
 
 
 def queryAlbumCoverPhoto(userid, albumid):
-    SQL = '''SELECT `photoid`, `sha1`, `fcount`, `cityid`, `ctime` FROM `photo` WHERE `albumid` = %d ORDER BY `fcount` DESC LIMIT 1
+    SQL = '''SELECT `photoid`, `sha1`, `fcount`, `cityid`, `ctime`, 'tag' FROM `photo` WHERE `albumid` = %d ORDER BY `fcount` DESC LIMIT 1
           ''' % int(albumid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -90,7 +91,7 @@ def queryPhotoInfoByCity(city, cursor = 0, size = 100):
     else:
         cityId = cityId['autoid']
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME_3DAYS)
-    SQL = '''SELECT `photoid`, `albumid`, `userid` ,`sha1`, `cityid`, `ctime`, `fcount` FROM `%s` WHERE `cityid` = %d AND `optime` > '%s' ORDER BY `fcount` DESC LIMIT %d,%d
+    SQL = '''SELECT `photoid`, `albumid`, `userid` ,`sha1`, `cityid`, `ctime`, `fcount`, `tag` FROM `%s` WHERE `cityid` = %d AND `optime` > '%s' ORDER BY `fcount` DESC LIMIT %d,%d
           ''' % (TABLE_PHOTO, int(cityId), mtime, cursor, size)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -237,7 +238,7 @@ def queryAlbumByUid(userid):
 
 
 def queryPhotoInfoByAlbumId(userid, albumid):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `sha1` FROM `%s` WHERE `albumid` = %d
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `sha1`, `tag` FROM `%s` WHERE `albumid` = %d
           ''' % (TABLE_PHOTO, int(albumid))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -252,7 +253,7 @@ def queryPhotoInfoByAlbumId(userid, albumid):
 
 
 def queryPhotoInfoByFcount(userid, albumid, cursor, size):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `userid` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `fcount` DESC LIMIT %d
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `userid`, `tag` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `fcount` DESC LIMIT %d
           ''' % (int(albumid), int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -273,7 +274,7 @@ def queryPhotoInfoByFcount(userid, albumid, cursor, size):
 
 
 def queryPhotoInfoByCtime(userid, albumid, cursor, size):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `userid` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `ctime` DESC LIMIT %d
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `userid`, `tag` FROM `photo` WHERE `albumid` = %d and photoid > %d order by `ctime` DESC LIMIT %d
           ''' % (int(albumid), int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -381,7 +382,7 @@ def queryAlbumInfo(albumid):
 
 
 def queryMostPopPhothoes(userid, cursor = 0, size = 10):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid` FROM `photo`  ORDER BY `fcount` DESC LIMIT %d,%d
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `tag` FROM `photo`  ORDER BY `fcount` DESC LIMIT %d,%d
           ''' % (int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -402,7 +403,7 @@ def queryMostPopPhothoes(userid, cursor = 0, size = 10):
 
 def queryRecentlyInfo(userid, cursor):
     cursor = mysql.escape(cursor)
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `userid` FROM `photo` WHERE `userid` = %d AND `ctime` > '%s' ORDER BY `ctime` DESC
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `userid`, `tag` FROM `photo` WHERE `userid` = %d AND `ctime` > '%s' ORDER BY `ctime` DESC
           ''' % (int(userid), cursor)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -520,3 +521,37 @@ def havaAlreadyInAlbum(userid, albumid):
         return True
     else:
         return False
+
+
+def insertComment(photoid, userid, comment):
+    SQL = '''INSERT `%s` (`photoid`, `userid`, `comment`) VALUES (%d, %d, '%s')
+          ''' % (TABLE_COMMENT, int(photoid), int(userid), mysql.escape(comment))
+    __, rows = db_album.insert(SQL)
+    if rows == 1:
+        return _code.CODE_OK, None
+    else:
+        return _code.CODE_FILEOP_DBERROR, None
+
+
+
+def queryComment(photoid, size = 0):
+    if size > 0:
+        SQL = '''SELECT `comment`, `userid` FROM `%s` WHERE `photoid` = %d LIMIT %d
+              ''' % (TABLE_COMMENT, int(photoid), int(size))
+    else:
+        SQL = '''SELECT `comment`, `userid` FROM `%s` WHERE `photoid` = %d
+              ''' % (TABLE_COMMENT, int(photoid))
+
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        for item in res:
+            userid = item['userid']
+            account_code, account_info = _account.queryUserInfo(userid)
+            if account_code == _code.CODE_OK:
+                item['from_user'] = account_info
+            else:
+                item['from_user'] = 'None'
+
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_COMMENT_NOTEXIST, None
