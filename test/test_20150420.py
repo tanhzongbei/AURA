@@ -90,7 +90,10 @@ class Test(unittest.TestCase):
         sha1 = sha.hexdigest()
         
         # first commit
-        data = {'token' : token, 'latitude':40.0425140000, 'longitude': 116.3293040000, 'sha1' : sha1, 'albumid' : albumid}
+        data = {'token' : token,
+                'latitude':40.0425140000, 'longitude': 116.3293040000,
+                'sha1' : sha1, 'albumid' : albumid,
+                'tag' : ['测试中文标签', 'test english tag', '第三个测试标签']}
         data = ujson.dumps(data)
         res = self.api('commit', data)
 

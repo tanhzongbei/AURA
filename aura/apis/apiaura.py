@@ -230,6 +230,7 @@ def commit():
     latitude = args.get('latitude', None)
     longitude = args.get('longitude', None)
     tag_list = args.get('tag', None)
+    tag = None
     if tag_list:
         tag = ','.join(i for i in tag_list)
 
@@ -598,14 +599,42 @@ def queryComment():
         return jsonify({'result_code' : code})
 
 
+@application.route('/aura/searchNickname', methods = ['POST'])
+def searchNickname():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    nickname = args.get('nickname', None)
+    if not nickname:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = accountDAO.searchNickname(nickname)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code' : code, 'userinfo' : res})
+    else:
+        return jsonify({'result_code' : code})
 
 
+@application.route('/aura/searchAlbumByName', methods = ['POST'])
+def searchAlbumByName():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
 
+    albumname = args.get('albumname', None)
+    if not albumname:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
-
-
-
-
+    code, res = fileDAO.queryAlbumByName(albumname)
+    if code == _code.CODE_OK:
+        return jsonify({'result_code' : code, 'albums' : res})
+    else:
+        return jsonify({'result_code' : code})
 
 
 

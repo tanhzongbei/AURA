@@ -43,7 +43,7 @@ def insertPhoto(albumid, geohash, cityid, userid, sha1, tag = None, prop = 0):
 
 
 def queryAlbumCoverPhoto(userid, albumid):
-    SQL = '''SELECT `photoid`, `sha1`, `fcount`, `cityid`, `ctime`, 'tag' FROM `photo` WHERE `albumid` = %d ORDER BY `fcount` DESC LIMIT 1
+    SQL = '''SELECT `photoid`, `sha1`, `fcount`, `cityid`, `ctime`, `tag` FROM `photo` WHERE `albumid` = %d ORDER BY `fcount` DESC LIMIT 1
           ''' % int(albumid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -370,6 +370,10 @@ def queryAlbumInfo(albumid):
         if ext_code == _code.CODE_OK:
             albuminfo.update(ext_res)
 
+        tag_info = queryAlbumtag(albumid)
+        if tag_info:
+            albuminfo.update(tag_info)
+
         account_code, account_info = _account.queryUserInfo(albuminfo['userid'])
         if account_code == _code.CODE_OK:
             albuminfo['creatorinfo'] = account_info
@@ -524,7 +528,7 @@ def havaAlreadyInAlbum(userid, albumid):
 
 
 def insertComment(photoid, userid, comment):
-    SQL = '''INSERT `%s` (`photoid`, `userid`, `comment`) VALUES (%d, %d, '%s')
+    SQL = '''INSERT `%s` (`photoid`, `userid`, `comment`, `ctime`) VALUES (%d, %d, '%s', now())
           ''' % (TABLE_COMMENT, int(photoid), int(userid), mysql.escape(comment))
     __, rows = db_album.insert(SQL)
     if rows == 1:
@@ -536,10 +540,10 @@ def insertComment(photoid, userid, comment):
 
 def queryComment(photoid, size = 0):
     if size > 0:
-        SQL = '''SELECT `comment`, `userid` FROM `%s` WHERE `photoid` = %d LIMIT %d
+        SQL = '''SELECT `comment`, `userid`, `ctime` FROM `%s` WHERE `photoid` = %d ORDER BY `ctime` desc LIMIT %d
               ''' % (TABLE_COMMENT, int(photoid), int(size))
     else:
-        SQL = '''SELECT `comment`, `userid` FROM `%s` WHERE `photoid` = %d
+        SQL = '''SELECT `comment`, `userid`, `ctime` FROM `%s` WHERE `photoid` = %d ORDER BY `ctime` desc
               ''' % (TABLE_COMMENT, int(photoid))
 
     res = db_album.query(SQL, mysql.QUERY_DICT)
@@ -555,3 +559,48 @@ def queryComment(photoid, size = 0):
         return _code.CODE_OK, res
     else:
         return _code.CODE_COMMENT_NOTEXIST, None
+
+
+def queryAlbumByName(albumname):
+    SQL = '''SELECT `albumid`, `userid`, `name`, `mtime`, `type`, `onlyfindbyfriend`, `location` FROM `album` WHERE `name` LIKE '%%%s%%'
+          ''' % mysql.escape(albumname)
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        for item in res:
+            ext_code, ext_res = queryAlbumExt(item['albumid'])
+            if ext_code == _code.CODE_OK:
+                item.update(ext_res)
+
+            photo_code, photo_res = queryAlbumCoverPhoto(item['userid'], item['albumid'])
+            if photo_code == _code.CODE_OK:
+                item['coverinfo'] = photo_res
+            else:
+                item['coverinfo'] = 'None'
+
+            tag_info = queryAlbumtag(item['albumid'])
+            if tag_info:
+                item.update(tag_info)
+
+            account_code, account_info = _account.queryUserInfo(item['userid'])
+            if account_code == _code.CODE_OK:
+                item['creatorinfo'] = account_info
+            else:
+                item['creatorinfo'] = 'None'
+
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_ALBUM_NOTEXIST, None
+
+
+def queryAlbumtag(albumid):
+    SQL = '''SELECT `tag` FROM `photo` WHERE `albumid` = %d LIMIT 20
+          ''' % int(albumid)
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        ret_list = list()
+        for item in res:
+            ret_list.append(item['tag'])
+        tags = ','.join(str(i) for i in ret_list)
+        return {'tags' : tags}
+    else:
+        return None

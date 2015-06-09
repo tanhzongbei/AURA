@@ -185,3 +185,12 @@ def updateNickName(userid, nickname):
     else:
         return  _code.CODE_ACCOUNT_NOT_EXIST, None
 
+
+def searchNickname(nickname):
+    SQL = '''SELECT `userid`, `thumbnail`, `nickname` FROM `%s` WHERE `nickname` = '%s' LIMIT 1
+          ''' % (ACCOUNT_TABLE, mysql.escape(nickname))
+    res = db_account.query(SQL, mysql.QUERY_DICT)
+    if res:
+        return _code.CODE_OK, res[0]
+    else:
+        return _code.CODE_ACCOUNT_NOT_EXIST, None
