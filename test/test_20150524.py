@@ -175,6 +175,10 @@ class Test(unittest.TestCase):
         assert res['photoes'][0]['haveFavourte']
         assert res['photoes'][1]['haveFavourte']
 
+        data = {'token' : token1, 'photoid' : photoid1}
+        res = self.api('deletePhoto', ujson.dumps(data))
+        assert res['result_code'] == 14008, res
+
         data = {'token' : token, 'photoid' : photoid1}
         res = self.api('deletePhoto', ujson.dumps(data))
         assert res['result_code'] == 10000
@@ -183,6 +187,10 @@ class Test(unittest.TestCase):
         res = self.api('queryPhotoInfo', ujson.dumps(data))
         assert res['result_code'] == 10000
         assert len(res['photoes']) == 1
+
+        data = {'token' : token1, 'albumid' : albumid}
+        res = self.api('deleteAlbum', ujson.dumps(data))
+        assert res['result_code'] == 14008,res
 
         data = {'token' : token, 'albumid' : albumid}
         res = self.api('deleteAlbum', ujson.dumps(data))

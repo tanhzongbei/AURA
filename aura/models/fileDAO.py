@@ -485,7 +485,15 @@ def delAlbumExt(albumid):
         return _code.CODE_ALBUM_NOTEXIST, None
 
 
-def deletePhoto(photoid):
+def deletePhoto(photoid, userid):
+    SQL = '''SELECT `userid` FROM `%s` WHERE `photoid` = %d LIMIT 1
+          ''' % (TABLE_PHOTO, int(photoid))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        userid_db = res[0]['userid']
+        if int(userid_db) != int(userid):
+            return _code.CODE_FILEOP_NORIGHT, None
+
     SQL = '''DELETE FROM `%s` WHERE `photoid` = %d LIMIT 1
           '''% (TABLE_PHOTO, int(photoid))
     res = db_album.execute(SQL)
@@ -498,13 +506,34 @@ def deletePhoto(photoid):
         return _code.CODE_PHOTO_NOTEXIST, None
 
 
-def deleteAlbum(albumid):
+def deletePhotoNoCheck(photoid):
+    SQL = '''DELETE FROM `%s` WHERE `photoid` = %d LIMIT 1
+          '''% (TABLE_PHOTO, int(photoid))
+    res = db_album.execute(SQL)
+    if res == 1:
+        SQL = '''DELETE FROM `%s` WHERE `photoid` = '%s'
+              ''' % (TABLE_FAVOURITE, int(photoid))
+        db_album.execute(SQL)
+        return _code.CODE_OK, None
+    else:
+        return _code.CODE_PHOTO_NOTEXIST, None
+
+
+def deleteAlbum(albumid, userid):
+    SQL = '''SELECT `userid` FROM `%s` WHERE `albumid` = %d LIMIT 1
+          ''' % (TABLE_ALBUM, int(albumid))
+    res = db_album.query(SQL, mysql.QUERY_DICT)
+    if res:
+        userid_db = res[0]['userid']
+        if int(userid_db) != int(userid):
+            return _code.CODE_FILEOP_NORIGHT, None
+
     SQL = '''SELECT `photoid` FROM `%s` WHERE `albumid` = %d
           ''' % (TABLE_PHOTO, int(albumid))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     for item in res:
         photoid = item['photoid']
-        deletePhoto(photoid)
+        deletePhotoNoCheck(photoid)
 
     delAlbumExt(albumid)
 

@@ -508,7 +508,7 @@ def deletePhoto():
     if not photoid:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
-    code, res = fileDAO.deletePhoto(photoid)
+    code, res = fileDAO.deletePhoto(photoid, userid)
     return jsonify({'result_code' : code})
 
 
@@ -524,7 +524,7 @@ def deleteAlbum():
     if not albumid:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
-    code, res = fileDAO.deleteAlbum(albumid)
+    code, res = fileDAO.deleteAlbum(albumid, userid)
     return jsonify({'result_code' : code})
 
 
