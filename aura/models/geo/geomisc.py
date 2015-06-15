@@ -15,6 +15,10 @@ def getGeoHash(lat, lng):
     return geohash.encode(lat, lng, 9)
 
 
+def parseGeoHash(hash):
+    return geohash.decode(hash)
+
+
 def getLocation(lat, lng):
     url = _cnf.BAIDU_URL + 'ak=%s&' % _cnf.BAIDU_AK + 'location=%s,%s&output=json&pois=0' % (str(lat),str(lng))
     code, res = curl.openurl(url)
@@ -40,5 +44,12 @@ def getLocation(lat, lng):
     
 #------------------------------------------------------------------------------ 
 if __name__ == '__main__':
-    print getGeoHash(40.0425140000,116.3293040000)
-    print getLocation(40.0439270000,116.3457650000)
+    lat_org = 40.0425140000
+    lng_org = 116.3293040000
+    hash = getGeoHash(lat_org, lng_org)
+    res = parseGeoHash(hash)
+    lat, lng = res
+    code, location = getLocation(lat_org, lng_org)
+    code, location1 = getLocation(lat, lng)
+    print location['formatted_address']
+    print location1['formatted_address']

@@ -14,6 +14,7 @@ from kputils import (
 )
 import definecode as _code
 import time
+from aura.models.geo import geomisc
 
 TABLE_PHOTO = 'photo'
 TABLE_ALBUM = 'album'
@@ -58,7 +59,7 @@ def queryAlbumCoverPhoto(userid, albumid):
 def queryPhotoInfoByLocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
-    SQL = '''SELECT `albumid`, `cityid`, `userid`, `type`, `onlyfindbyfriend`, `location`, `mtime`, `name` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
+    SQL = '''SELECT `albumid`, `cityid`, `userid`, `type`, `onlyfindbyfriend`, `location`, `geohash`, `mtime`, `name` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
     ''' % (TABLE_ALBUM, geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -78,6 +79,10 @@ def queryPhotoInfoByLocate(geohash):
                 item['creatorinfo'] = account_info
             else:
                 item['creatorinfo'] = 'None'
+
+            geohash = item['geohash']
+            lat, lng = geomisc.parseGeoHash(geohash)
+            item.update({'geo' : {'lat' : lat, 'lng' : lng}})
 
         return _code.CODE_OK, res
     else:
@@ -144,7 +149,7 @@ def setOnlyFindbyFriend(albumid, onlyfindbyfriend):
 def queryAlbumBylocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
-    SQL = '''SELECT `albumid`, `name`, `cityid`, `userid`, `type`, `location` FROM `album` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
+    SQL = '''SELECT `albumid`, `name`, `cityid`, `userid`, `type`, `location`, `geohash` FROM `album` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
     ''' % (geohash[:5] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -164,6 +169,10 @@ def queryAlbumBylocate(geohash):
                 item['creatorinfo'] = account_info
             else:
                 item['creatorinfo'] = 'None'
+
+            geohash = item['geohash']
+            lat, lng = geomisc.parseGeoHash(geohash)
+            item.update({'geo' : {'lat' : lat, 'lng' : lng}})
 
             __, city = queryCityInfo(item['cityid'])
             res[0]['city'] = city['city']
@@ -215,7 +224,7 @@ def queryAlbumIdByPhotoId(photoid):
 
 
 def queryAlbumByUid(userid):
-    SQL = '''SELECT `albumid`, `name`, `cityid`, `type`, `location` FROM `album` WHERE `userid` = %d
+    SQL = '''SELECT `albumid`, `name`, `cityid`, `type`, `location`, `geohash` FROM `album` WHERE `userid` = %d
           ''' % int(userid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -229,6 +238,10 @@ def queryAlbumByUid(userid):
                 item['creatorinfo'] = account_info
             else:
                 item['creatorinfo'] = 'None'
+
+            geohash = item['geohash']
+            lat, lng = geomisc.parseGeoHash(geohash)
+            item.update({'geo' : {'lat' : lat, 'lng' : lng}})
 
             __, city = queryCityInfo(item['cityid'])
             item['city'] = city['city']
@@ -361,7 +374,7 @@ def haveFavourte(userid, photoid):
 
 
 def queryAlbumInfo(albumid):
-    SQL = '''SELECT `albumid`, `userid`, `name`, `mtime`, `type`, `onlyfindbyfriend`, `location` FROM `album` WHERE `albumid` = %d LIMIT 1
+    SQL = '''SELECT `albumid`, `userid`, `name`, `mtime`, `type`, `onlyfindbyfriend`, `location`, `geohash` FROM `album` WHERE `albumid` = %d LIMIT 1
           ''' % int(albumid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -379,6 +392,10 @@ def queryAlbumInfo(albumid):
             albuminfo['creatorinfo'] = account_info
         else:
             albuminfo['creatorinfo'] = 'None'
+
+        geohash = albuminfo['geohash']
+        lat, lng = geomisc.parseGeoHash(geohash)
+        albuminfo.update({'geo' : {'lat' : lat, 'lng' : lng}})
 
         return _code.CODE_OK, albuminfo
     else:
@@ -591,7 +608,7 @@ def queryComment(photoid, size = 0):
 
 
 def queryAlbumByName(albumname):
-    SQL = '''SELECT `albumid`, `userid`, `name`, `mtime`, `type`, `onlyfindbyfriend`, `location` FROM `album` WHERE `name` LIKE '%%%s%%'
+    SQL = '''SELECT `albumid`, `userid`, `name`, `mtime`, `type`, `onlyfindbyfriend`, `location`, `geohash` FROM `album` WHERE `name` LIKE '%%%s%%'
           ''' % mysql.escape(albumname)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -615,6 +632,10 @@ def queryAlbumByName(albumname):
                 item['creatorinfo'] = account_info
             else:
                 item['creatorinfo'] = 'None'
+
+            geohash = item['geohash']
+            lat, lng = geomisc.parseGeoHash(geohash)
+            item.update({'geo' : {'lat' : lat, 'lng' : lng}})
 
         return _code.CODE_OK, res
     else:
