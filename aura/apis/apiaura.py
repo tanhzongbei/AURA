@@ -494,7 +494,9 @@ def queryRecentlyInfo():
         for item in res:
             ret_list.append(item)
 
-    return jsonify({'result_code' : _code.CODE_OK, 'photoes' : ret_list})
+    sorted_list = sorted(ret_list, key = lambda item: item['ctime'], reverse=True)
+
+    return jsonify({'result_code' : _code.CODE_OK, 'photoes' : sorted_list})
 
 
 @application.route('/aura/deletePhoto', methods = ['POST'])
