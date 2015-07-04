@@ -4,9 +4,10 @@
 Author: ilcwd
 """
 
-
 from flask import request
-from aura.base import application, jsonify, logger
+import ujson
+
+from aura.base import application, jsonify
 from aura.models import (
                          accountDAO,
                          sessionDAO,
@@ -15,7 +16,7 @@ from aura.models import (
 import definecode as _code
 from aura.models.geo import geomisc
 from aura.models.oss import ossmisc
-import ujson
+
 
 @application.route('/aura/emailRegist', methods=['POST'])
 def emailRegist():
@@ -635,6 +636,35 @@ def searchAlbumByName():
         return jsonify({'result_code' : code, 'albums' : res})
     else:
         return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryUserInfo', methods = ['POST'])
+def queryUserInfo():
+    args = request.json
+    token = args.get('token', None)
+    code, userid = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    userid = args.get('userid', None)
+    if not userid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    res_dict = dict()
+    code, res = accountDAO.queryUserInfo(userid)
+    if code == _code.CODE_OK:
+        res_dict.update(res)
+        code_follower, res_follower = accountDAO.queryAllFollower(userid)
+        if code_follower == _code.CODE_OK:
+            res_dict.update(res_follower)
+        code_followee,res_followee = accountDAO.queryAllFollowee(userid)
+        if code_followee == _code.CODE_OK:
+            res_dict.update(res_followee)
+        res_dict.update({'result_code': _code.CODE_OK})
+        return jsonify(res_dict)
+    else:
+        return jsonify({'result_code' : code})
+
 
 
 

@@ -87,3 +87,41 @@ def getAllFollower():
         return  jsonify({'result_code' : code, 'follower' : res})
     else:
         return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryAllFollowerByUid', methods=['POST'])
+def queryAllFollowerByUid():
+    args = request.json
+    token = args.get('token', None)
+    code, __ = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    userid = args.get('userid', None)
+    if not userid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = accountDAO.queryAllFollower(userid)
+    if code == _code.CODE_OK:
+        return  jsonify({'result_code' : code, 'follower' : res})
+    else:
+        return jsonify({'result_code' : code})
+
+
+@application.route('/aura/queryAllFolloweeByUid', methods=['POST'])
+def queryAllFolloweeByUid():
+    args = request.json
+    token = args.get('token', None)
+    code, __ = getSessionData(token)
+    if code != _code.CODE_OK:
+        return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
+
+    userid = args.get('userid', None)
+    if not userid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    code, res = accountDAO.queryAllFollowee(userid)
+    if code == _code.CODE_OK:
+        return  jsonify({'result_code' : code, 'follower' : res})
+    else:
+        return jsonify({'result_code' : code})
