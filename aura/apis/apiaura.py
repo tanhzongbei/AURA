@@ -656,10 +656,10 @@ def queryUserInfo():
         res_dict.update(res)
         code_follower, res_follower = accountDAO.queryAllFollower(userid)
         if code_follower == _code.CODE_OK:
-            res_dict.update(res_follower)
+            res_dict.update({'follower' : list(res_follower)})
         code_followee,res_followee = accountDAO.queryAllFollowee(userid)
         if code_followee == _code.CODE_OK:
-            res_dict.update(res_followee)
+            res_dict.update({'followee' : list(res_followee)})
         res_dict.update({'result_code': _code.CODE_OK})
         return jsonify(res_dict)
     else:
