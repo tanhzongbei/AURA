@@ -659,9 +659,14 @@ def queryUserInfo():
         code_follower, res_follower = accountDAO.queryAllFollower(userid)
         followed = 0
         if code_follower == _code.CODE_OK:
+            res_dict.update({'follower' : list(res_follower)})
             for item in res_follower:
                 if int(item['userid']) == int(userid_owner):
                     followed = 1
+
+        code_followee,res_followee = accountDAO.queryAllFollowee(userid)
+        if code_followee == _code.CODE_OK:
+            res_dict.update({'followee' : list(res_followee)})
 
         res_dict.update({'followed' : followed})
 

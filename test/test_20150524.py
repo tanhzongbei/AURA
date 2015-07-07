@@ -228,17 +228,16 @@ class Test(unittest.TestCase):
         data = {'token' : token1}
         res = self.api('queryMostPopPhoto', ujson.dumps(data))
         assert res['result_code'] == 10000
-        print res
 
         data = {'token' : token, 'latitude':40.0425140000, 'longitude': 116.3293040000}
         res = self.api('recommendPhotoesByCity', ujson.dumps(data))
         assert res['result_code'] == 10000
+        print res
 
 
         data = {'token' : token}
         res = self.api('queryRecentlyInfo', ujson.dumps(data))
         assert res['result_code'] == 10000
-        print res
 
     def test3(self):
         ### 上传2个文件到相册，然后再删除
