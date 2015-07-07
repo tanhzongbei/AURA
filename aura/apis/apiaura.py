@@ -644,7 +644,7 @@ def searchAlbumByName():
 def queryUserInfo():
     args = request.json
     token = args.get('token', None)
-    code, userid = getSessionData(token)
+    code, userid_owner = getSessionData(token)
     if code != _code.CODE_OK:
         return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
 
@@ -657,11 +657,14 @@ def queryUserInfo():
     if code == _code.CODE_OK:
         res_dict.update(res)
         code_follower, res_follower = accountDAO.queryAllFollower(userid)
+        followed = 0
         if code_follower == _code.CODE_OK:
-            res_dict.update({'follower' : list(res_follower)})
-        code_followee,res_followee = accountDAO.queryAllFollowee(userid)
-        if code_followee == _code.CODE_OK:
-            res_dict.update({'followee' : list(res_followee)})
+            for item in res_follower:
+                if int(item['userid']) == int(userid_owner):
+                    followed = 1
+
+        res_dict.update({'followed' : followed})
+
         res_dict.update({'result_code': _code.CODE_OK})
         return jsonify(res_dict)
     else:

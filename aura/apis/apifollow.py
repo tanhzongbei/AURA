@@ -20,6 +20,15 @@ def follow():
     if not followeeid:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
+    code_follower, res_follower = accountDAO.queryAllFollower(followeeid)
+    followed = 0
+    if code_follower == _code.CODE_OK:
+        for item in res_follower:
+            if int(item['userid']) == int(userid):
+                followed = 1
+    if followed:
+        return jsonify({'result_code' : _code.CODE_HAVEFOLLOWED})
+
     code = accountDAO.follow(followeeid, userid)
 
     return  jsonify({'result_code' : code})

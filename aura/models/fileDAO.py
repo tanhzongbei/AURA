@@ -403,7 +403,7 @@ def queryAlbumInfo(albumid):
 
 
 def queryMostPopPhothoes(userid, cursor = 0, size = 10):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `tag` FROM `photo`  ORDER BY `fcount` DESC LIMIT %d,%d
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `userid`, `tag` FROM `photo`  ORDER BY `fcount` DESC LIMIT %d,%d
           ''' % (int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -416,6 +416,12 @@ def queryMostPopPhothoes(userid, cursor = 0, size = 10):
             __, city = queryCityInfo(item['cityid'])
             item['city'] = city['city']
             item['haveFavourte'] = haveFavourte(userid, item['photoid'])
+
+            account_code, account_info = _account.queryUserInfo(item['userid'])
+            if account_code == _code.CODE_OK:
+                item['creatorinfo'] = account_info
+            else:
+                item['creatorinfo'] = 'None'
 
         return _code.CODE_OK, res
     else:
@@ -437,7 +443,7 @@ def queryRecentlyInfo(userid, cursor):
             __, city = queryCityInfo(item['cityid'])
             item['city'] = city['city']
             item['haveFavourte'] = haveFavourte(userid, item['photoid'])
-            account_code, account_info = _account.queryUserInfo(userid)
+            account_code, account_info = _account.queryUserInfo(item['userid'])
             if account_code == _code.CODE_OK:
                 item['creatorinfo'] = account_info
             else:
