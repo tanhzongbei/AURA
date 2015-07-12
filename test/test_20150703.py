@@ -130,8 +130,9 @@ class Test(unittest.TestCase):
         assert res['result_code'] == 10000
 
         res = self.api('updateThumbnail', ujson.dumps({'token' : token,'thumbnail' : 'http://www.baidu,com'}))
-
-
+        print res
+        res = self.api('updateSign', ujson.dumps({'token' : token,'sign' : 'http://www.baidu,com'}))
+        print res
         albumid = self.createAlbum(token2)
         self.UploadPhoto(token2, albumid)
         self.UploadPhoto(token2, albumid)

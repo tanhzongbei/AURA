@@ -558,7 +558,7 @@ def updateSign():
     if code != _code.CODE_OK:
         return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
 
-    sign = args.get('nickname', None)
+    sign = args.get('sign', None)
     if not sign:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
