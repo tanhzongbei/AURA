@@ -147,7 +147,7 @@ def queryAllFollower(userid):
 
 
 def updateThumbnail(userid, thumbnail):
-    SQL = '''UPDATE `%s` SET `thumbanil` = '%s' WHERE `userid` = %d
+    SQL = '''UPDATE `%s` SET `thumbnail` = '%s' WHERE `userid` = %d
           ''' % (ACCOUNT_TABLE, mysql.escape(thumbnail), int(userid))
     rows = db_account.execute(SQL)
     if rows == 1:

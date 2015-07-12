@@ -65,6 +65,9 @@ def updateThumbnail():
     if not thumbnail:
         return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
+    code, res = accountDAO.updateThumbnail(userid, thumbnail)
+    return jsonify({'result_code' : code})
+
 
 
 @application.route('/aura/login', methods=['POST'])
