@@ -233,6 +233,12 @@ def queryAlbumByUid(userid):
             if ext_code == _code.CODE_OK:
                 item.update(ext_res)
 
+            photo_code, photo_res = queryAlbumCoverPhoto(userid, item['albumid'])
+            if photo_code == _code.CODE_OK:
+                item['coverinfo'] = photo_res
+            else:
+                item['coverinfo'] = 'None'
+
             account_code, account_info = _account.queryUserInfo(userid)
             if account_code == _code.CODE_OK:
                 item['creatorinfo'] = account_info

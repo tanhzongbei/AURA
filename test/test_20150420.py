@@ -132,6 +132,7 @@ class Test(unittest.TestCase):
         res = self.api('queryAlbum', ujson.dumps(data))
         assert res['result_code'] == 10000
         assert len(res['albums']) == 1
+        print res
 
         ### 为photo1点赞
         username1, token1 = self.regist()
