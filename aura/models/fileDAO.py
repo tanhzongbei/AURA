@@ -224,7 +224,7 @@ def queryAlbumIdByPhotoId(photoid):
 
 
 def queryAlbumByUid(userid):
-    SQL = '''SELECT `albumid`, `name`, `cityid`, `type`, `location`, `geohash` FROM `album` WHERE `userid` = %d
+    SQL = '''SELECT `albumid`, `cityid`,  `type`, `onlyfindbyfriend`, `location`, `geohash`, `mtime`, `name` FROM `album` WHERE `userid` = %d
           ''' % int(userid)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
