@@ -15,6 +15,7 @@ from kputils import (
 import definecode as _code
 import time
 from aura.models.geo import geomisc
+from aura.models.oss import ossmisc
 
 TABLE_PHOTO = 'photo'
 TABLE_ALBUM = 'album'
@@ -666,3 +667,21 @@ def queryAlbumtag(albumid):
         return {'tags' : tags}
     else:
         return None
+
+
+def queryPhotoInfo(photoid):
+    SQL = '''SELECT `photoid`, `albumid`, `userid` ,`sha1`, `cityid`, `ctime`, `fcount`, `tag` FROM `%s` WHERE `photoid`= %d LIMIT 1
+          ''' % (TABLE_PHOTO, int(photoid))
+    res = db_album.query(SQL, mysql.QUERY_DICT)[0]
+    if res:
+        album_code, albuminfo = queryAlbumInfo(res['albumid'])
+        if album_code == _code.CODE_OK:
+            res['albuminfo'] = albuminfo
+        else:
+            res['albuminfo'] = 'None'
+
+        url = ossmisc.getUrl(res['sha1'])
+        res.update({'url':url})
+        return _code.CODE_OK, res
+    else:
+        return _code.CODE_ALBUM_NOTEXIST, None

@@ -679,7 +679,21 @@ def queryUserInfo():
         return jsonify({'result_code' : code})
 
 
+@application.route('/aura/queryMagicInfo', methods = ['POST'])
+def queryMagicInfo():
+    args = request.json
+    userid = args.get('userid', None)
+    photoid = args.get('photoid', None)
+    if not userid or not photoid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
 
+    code, user_res = accountDAO.queryUserInfo(userid)
+    if code == _code.CODE_OK:
+        photo_code, photo_res = fileDAO.queryPhotoInfo(photoid)
+        if photo_code == _code.CODE_OK:
+            return jsonify({'result_code' : code, 'userinfo' : user_res, 'photoinfo' : photo_res})
+
+    return jsonify({'result_code' : code})
 
 
 #------------------------------------------------------------------------------ 

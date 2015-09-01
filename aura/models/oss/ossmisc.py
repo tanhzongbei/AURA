@@ -59,7 +59,17 @@ def downloadFile(sha1):
         print "get_object ERROR"
 
     return res
-    
+
+
+def getUrl(sha1):
+    res = oss.sign_url('GET', _cnf.OSS_BUCKET_NAME, sha1, 3600)
+    if res:
+        print "get_object OK"
+    else:
+        print "get_object ERROR"
+
+    return res
+
     
 oss = OssAPI(_cnf.OSS_HOST, _cnf.OSS_KEY, _cnf.OSS_SECRET)
 
@@ -71,8 +81,9 @@ if __name__ == '__main__':
     sha = hashlib.sha1()
     sha.update(sample)
     sha1 = sha.hexdigest()
-    print uploadFile(sha1, sample)
-    print headObj(sha1)
+    # print uploadFile(sha1, sample)
+    # print headObj(sha1)
     print downloadFile(sha1)
+    print getUrl(sha1)
     
 
