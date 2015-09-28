@@ -129,18 +129,18 @@ class Test(unittest.TestCase):
         res = self.api('follow', data)
         assert res['result_code'] == 10000
 
-        res = self.api('updateThumbnail', ujson.dumps({'token' : token,'thumbnail' : 'http://www.baidu,com'}))
-        print res
-        res = self.api('updateSign', ujson.dumps({'token' : token,'sign' : 'http://www.baidu,com'}))
-        print res
-        albumid = self.createAlbum(token2)
-        self.UploadPhoto(token2, albumid)
-        self.UploadPhoto(token2, albumid)
-
-        time.sleep(3)
-        albumid1 = self.createAlbum(token)
-        self.UploadPhoto(token, albumid1)
-        self.UploadPhoto(token, albumid1)
+        # res = self.api('updateThumbnail', ujson.dumps({'token' : token,'thumbnail' : 'http://www.baidu,com'}))
+        # print res
+        # res = self.api('updateSign', ujson.dumps({'token' : token,'sign' : 'http://www.baidu,com'}))
+        # print res
+        # albumid = self.createAlbum(token2)
+        # self.UploadPhoto(token2, albumid)
+        # self.UploadPhoto(token2, albumid)
+        #
+        # time.sleep(3)
+        # albumid1 = self.createAlbum(token)
+        # self.UploadPhoto(token, albumid1)
+        # self.UploadPhoto(token, albumid1)
 
 
         data = {'token' : token}

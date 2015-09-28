@@ -37,6 +37,7 @@ def encryptPassword(password):
 ACCOUNT_TABLE = 'account'    
 SESSION_TABLE = 'session'
 FOLLOW_TABLE = 'follow'
+OAUTH_TABLE = 'oauth'
 #------------------------------------------------------------------------------ 
 def register(email, mobile, nickname, password):
     email = mysql.escape(email)
@@ -194,3 +195,38 @@ def searchNickname(nickname):
         return _code.CODE_OK, res[0]
     else:
         return _code.CODE_ACCOUNT_NOT_EXIST, None
+
+
+from kputils import misc
+def format_oauth_nickname(nickname, source):
+    return '%s(%s_%s)' % (nickname, misc.randomStr(), source)
+
+
+def checkoauth(openid, source, nickname):
+    SQL = '''SELECT `userid` FROM `oauth` WHERE `openid` = '%s' AND `source` = '%s' LIMIT 1
+          ''' % (mysql.escape(openid), mysql.escape(source))
+    res = db_account.query(SQL, mysql.QUERY_DICT)
+    if res:
+        userid = res[0]['userid']
+        SQL = '''SELECT `nickname` FROM `account` WHERE `userid` = %d LIMIT 1
+              ''' % (int(userid))
+        res = db_account.query(SQL, mysql.QUERY_DICT)
+        nickname = res[0]['nickname']
+        return _code.CODE_ACCOUNT_EXIST, userid, nickname
+    else:
+        #regist
+        format_nickname =  format_oauth_nickname(nickname, source)
+        SQL = '''INSERT INTO `%s` (`nickname`, `ctime`) VALUES ('%s', now())
+              ''' % (ACCOUNT_TABLE, mysql.escape(format_nickname))
+        userid = db_account.execute(SQL)
+        if userid:
+            SQL = '''INSERT INTO `oauth` (`openid`, `source`, `userid`) VALUES ('%s', '%s', %d)
+                  ''' % (mysql.escape(openid), mysql.escape(source), int(userid))
+            res = db_account.execute(SQL)
+            if res:
+                return _code.CODE_ACCOUNT_NOT_EXIST, userid, format_nickname
+
+        return _code.CODE_ACCOUNT_DBERROR, None
+
+
+

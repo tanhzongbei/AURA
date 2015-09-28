@@ -11,7 +11,8 @@ from aura.base import application, jsonify
 from aura.models import (
                          accountDAO,
                          sessionDAO,
-                         fileDAO
+                         fileDAO,
+                         oauth_remoterequest as _oauth
                          )
 import definecode as _code
 from aura.models.geo import geomisc
@@ -421,7 +422,7 @@ def queryMostPopPhoto():
         return jsonify({'result_code' : _code.CODE_SESSION_INVAILD})
 
     cursor = args.get('cursor', 0)
-    size = args.get('size', 10)
+    size = args.get('size', 20)
 
     code, res = fileDAO.queryMostPopPhothoes(userid, cursor, size)
 
@@ -439,7 +440,7 @@ def recommendPhotoesByCity():
     latitude = args.get('latitude', None)
     longitude = args.get('longitude', None)
     cursor = args.get('cursor', 0)
-    size = args.get('size', 10)
+    size = args.get('size', 20)
 
     code, result = geomisc.getLocation(latitude, longitude)
     if code == _code.CODE_OK:
@@ -689,6 +690,11 @@ def queryMagicInfo():
 
     code, user_res = accountDAO.queryUserInfo(userid)
     if code == _code.CODE_OK:
+        thumbnail = user_res.get('thumbnail', None)
+        if thumbnail:
+            thumbnail_url = ossmisc.getUrl(thumbnail)
+            user_res.update({'thumbnail_url' : thumbnail_url})
+
         photo_code, photo_res = fileDAO.queryPhotoInfo(photoid)
         if photo_code == _code.CODE_OK:
             return jsonify({'result_code' : code, 'userinfo' : user_res, 'photoinfo' : photo_res})
@@ -697,3 +703,19 @@ def queryMagicInfo():
 
 
 #------------------------------------------------------------------------------ 
+
+
+@application.route('/aura/openLogin', methods = ['POST'])
+def openLogin():
+    args = request.json
+    access_token = args.get('access_token', None)
+    openid = args.get('openid', None)
+    type = args.get('type', None)
+    if not access_token or not openid:
+        return jsonify({'result_code' : _code.CODE_BADPARAMS})
+
+    #first checke access_token
+    if type == 'sinaweibo':
+        nickname = _oauth.getWeiboNickname(access_token, openid)
+    elif type == 'weixin':
+        nickname = _oauth.getWeixinNickName(access_token, openid)

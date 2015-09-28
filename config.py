@@ -37,3 +37,9 @@ OSS_BUCKET_NAME = 'aura'
 BAIDU_URL = 'http://api.map.baidu.com/geocoder/v2/?'
 BAIDU_AK = 'rT6MtA2aCPAGxxCaSN347RwO'
 
+
+OAUTH_WEIBO_USERINFO_URL = 'https://api.weibo.com/2/users/show.json'
+WEIBO_NICKNAME_PREFIX = 'sinaweibo'
+
+OAUTH_WEIXIN_USERINFO_URL = 'https://api.weixin.qq.com/cgi-bin/user/info?'
+WEIXIN_NICKNAME_PREFIX = 'weixin'

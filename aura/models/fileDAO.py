@@ -61,7 +61,7 @@ def queryPhotoInfoByLocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
     SQL = '''SELECT `albumid`, `cityid`, `userid`, `type`, `onlyfindbyfriend`, `location`, `geohash`, `mtime`, `name` FROM `%s` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
-    ''' % (TABLE_ALBUM, geohash[:5] + '%', mtime)
+    ''' % (TABLE_ALBUM, geohash[:6] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
         for item in res:
@@ -90,15 +90,14 @@ def queryPhotoInfoByLocate(geohash):
         return _code.CODE_ALBUM_NOTEXIST, None
 
 
-def queryPhotoInfoByCity(city, cursor = 0, size = 100):
+def queryPhotoInfoByCity(city, cursor = 0, size = 20):
     code, cityId = queryCityId(city)
     if not cityId:
         return _code.CODE_CITY_NOTEXIST, None
     else:
         cityId = cityId['autoid']
-    mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME_3DAYS)
-    SQL = '''SELECT `photoid`, `albumid`, `userid` ,`sha1`, `cityid`, `ctime`, `fcount`, `tag` FROM `%s` WHERE `cityid` = %d AND `optime` > '%s' ORDER BY `fcount` DESC LIMIT %d,%d
-          ''' % (TABLE_PHOTO, int(cityId), mtime, cursor, size)
+    SQL = '''SELECT `photoid`, `albumid`, `userid` ,`sha1`, `cityid`, `ctime`, `fcount`, `tag` FROM `%s` WHERE `cityid` = %d ORDER BY `ctime` DESC LIMIT %d,%d
+          ''' % (TABLE_PHOTO, int(cityId), cursor, size)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
         for item in res:
@@ -117,7 +116,10 @@ def queryPhotoInfoByCity(city, cursor = 0, size = 100):
             else:
                 item['creatorinfo'] = 'None'
 
-        return _code.CODE_OK, res
+        p_list = list(res)
+        p_list.sort(key = lambda item : item['fcount'], reverse = True)
+
+        return _code.CODE_OK, p_list
     else:
         return _code.CODE_ALBUM_NOTEXIST, None
 
@@ -151,7 +153,7 @@ def queryAlbumBylocate(geohash):
     geohash = mysql.escape(geohash)
     mtime = misc.timestamp2str(int(time.time()) - DELAY_TIME)
     SQL = '''SELECT `albumid`, `name`, `cityid`, `userid`, `type`, `location`, `geohash` FROM `album` WHERE `geohash` LIKE '%s' AND `mtime` > '%s'
-    ''' % (geohash[:5] + '%', mtime)
+    ''' % (geohash[:6] + '%', mtime)
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
         for item in res:
@@ -410,7 +412,7 @@ def queryAlbumInfo(albumid):
 
 
 def queryMostPopPhothoes(userid, cursor = 0, size = 10):
-    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `userid`, `tag` FROM `photo`  ORDER BY `fcount` DESC LIMIT %d,%d
+    SQL = '''SELECT `photoid`, `ctime`, `cityid`, `fcount`, `sha1`, `albumid`, `userid`, `tag` FROM `photo`  ORDER BY `ctime` DESC LIMIT %d,%d
           ''' % (int(cursor), int(size))
     res = db_album.query(SQL, mysql.QUERY_DICT)
     if res:
@@ -430,7 +432,10 @@ def queryMostPopPhothoes(userid, cursor = 0, size = 10):
             else:
                 item['creatorinfo'] = 'None'
 
-        return _code.CODE_OK, res
+        p_list = list(res)
+        p_list.sort(key = lambda item : item['fcount'], reverse = True)
+
+        return _code.CODE_OK, p_list
     else:
         return _code.CODE_ACCOUNT_DBERROR, None
 

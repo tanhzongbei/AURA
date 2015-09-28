@@ -70,7 +70,7 @@ class Test(unittest.TestCase):
     def UploadPhoto(self, token, albumid):
         name = 'test2%d' % int(time.time())
 
-        filename = './2.png'
+        filename = './1.jpg'
         content = open(filename, 'r').read()
 
         sha = hashlib.sha1()
