@@ -64,16 +64,22 @@ class Test(unittest.TestCase):
     def test(self):
         token, userid = self.login()
 
-        data = {'token' : token}
-        data = ujson.dumps(data)
-        res = self.api('queryMostPopPhoto', data)
-        assert res['result_code'] == 10000
-        print res
+        # data = {'token' : token}
+        # data = ujson.dumps(data)
+        # res = self.api('queryMostPopPhoto', data)
+        # assert res['result_code'] == 10000
+        # print res
+        #
+        # data = {'token' : token, 'longitude' : 114.3065710000, 'latitude' : 30.6009280000}
+        # data = ujson.dumps(data)
+        # res = self.api('recommendPhotoesByCity', data)
+        # assert res['result_code'] == 10000
+        # print res
 
-        data = {'token' : token, 'longitude' : 114.3065710000, 'latitude' : 30.6009280000}
+
+        data = {'access_token' : 'OezXcEiiBSKSxW0eoylIeE9zV0byFfmq9_sZ3zwIxwRk6wm54tPwLDlw2MYzKboK4QPzZodwoi9dGpDpVw-ag4YYnzWw3sVLpbUJcBb3wGz_bdeerc_XAunQoEJ6PvvJG-hrxsvT2qHB71OgjHszog', 'openid' : 'oDNO3t1jrZSBc1GcV9kzx4dbDCbw', 'type' : 'weixin'}
         data = ujson.dumps(data)
-        res = self.api('recommendPhotoesByCity', data)
-        assert res['result_code'] == 10000
+        res = self.api('openLogin', data)
         print res
 
 

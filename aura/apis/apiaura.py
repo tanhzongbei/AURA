@@ -707,6 +707,9 @@ def queryMagicInfo():
 
 @application.route('/aura/openLogin', methods = ['POST'])
 def openLogin():
+    header = request.headers.environ
+    deviceId = header.get('HTTP_DEVICEID', None)
+    ip = header.get('REMOTE_ADDR', None)
     args = request.json
     access_token = args.get('access_token', None)
     openid = args.get('openid', None)
@@ -719,3 +722,20 @@ def openLogin():
         nickname = _oauth.getWeiboNickname(access_token, openid)
     elif type == 'weixin':
         nickname = _oauth.getWeixinNickName(access_token, openid)
+
+    if not nickname:
+        return jsonify({'result_code' : _code.CODE_INVALID_ACCESS_TOKEN})
+
+    code, userid, nickname = accountDAO.openlogin(openid, type, nickname)
+
+    if not userid:
+        return jsonify({'result_code' : code})
+    else:
+        #create session
+        code, token = sessionDAO.createSession(userid, deviceId, ip)
+        __, userinfo = accountDAO.queryUserInfo(userid)
+
+        ret = {'result_code':code, 'token' : token, 'userid' : userid}
+        ret.update(userinfo)
+
+        return jsonify(ret)

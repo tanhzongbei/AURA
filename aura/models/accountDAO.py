@@ -202,7 +202,7 @@ def format_oauth_nickname(nickname, source):
     return '%s(%s_%s)' % (nickname, misc.randomStr(), source)
 
 
-def checkoauth(openid, source, nickname):
+def openlogin(openid, source, nickname):
     SQL = '''SELECT `userid` FROM `oauth` WHERE `openid` = '%s' AND `source` = '%s' LIMIT 1
           ''' % (mysql.escape(openid), mysql.escape(source))
     res = db_account.query(SQL, mysql.QUERY_DICT)
@@ -218,7 +218,14 @@ def checkoauth(openid, source, nickname):
         format_nickname =  format_oauth_nickname(nickname, source)
         SQL = '''INSERT INTO `%s` (`nickname`, `ctime`) VALUES ('%s', now())
               ''' % (ACCOUNT_TABLE, mysql.escape(format_nickname))
-        userid = db_account.execute(SQL)
+        res = db_account.execute(SQL)
+        if res != 1:
+            return _code.CODE_ACCOUNT_DBERROR, None, None
+
+        SQL = '''SELECT LAST_INSERT_ID()
+              '''
+        userid = db_account.query_one(SQL)[0]
+
         if userid:
             SQL = '''INSERT INTO `oauth` (`openid`, `source`, `userid`) VALUES ('%s', '%s', %d)
                   ''' % (mysql.escape(openid), mysql.escape(source), int(userid))
@@ -226,7 +233,7 @@ def checkoauth(openid, source, nickname):
             if res:
                 return _code.CODE_ACCOUNT_NOT_EXIST, userid, format_nickname
 
-        return _code.CODE_ACCOUNT_DBERROR, None
+        return _code.CODE_ACCOUNT_DBERROR, None, None
 
 
 

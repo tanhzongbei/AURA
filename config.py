@@ -41,5 +41,5 @@ BAIDU_AK = 'rT6MtA2aCPAGxxCaSN347RwO'
 OAUTH_WEIBO_USERINFO_URL = 'https://api.weibo.com/2/users/show.json'
 WEIBO_NICKNAME_PREFIX = 'sinaweibo'
 
-OAUTH_WEIXIN_USERINFO_URL = 'https://api.weixin.qq.com/cgi-bin/user/info?'
+OAUTH_WEIXIN_USERINFO_URL = 'https://api.weixin.qq.com/sns/userinfo?'
 WEIXIN_NICKNAME_PREFIX = 'weixin'
